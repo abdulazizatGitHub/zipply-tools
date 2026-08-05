@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/billing",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Billing service: subscriptions, plans, entitlements, invoices, Stripe integration.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'billing: foundation-phase stub' && exit 0",
+    "dev": "echo 'billing: not yet implemented' && exit 0",
+    "lint": "echo 'billing: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'billing: foundation-phase stub' && exit 0",
+    "test": "echo 'billing: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

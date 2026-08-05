@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/ai-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AI gateway: model routing, caching, fallback, cost attribution, budget caps. Only owner of LLM vendor SDK access.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'ai-gateway: foundation-phase stub' && exit 0",
+    "dev": "echo 'ai-gateway: not yet implemented' && exit 0",
+    "lint": "echo 'ai-gateway: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'ai-gateway: foundation-phase stub' && exit 0",
+    "test": "echo 'ai-gateway: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

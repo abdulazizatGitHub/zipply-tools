@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/metering",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Metering service: ingests usage events, writes to ClickHouse, exposes quotas, syncs to billing.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'metering: foundation-phase stub' && exit 0",
+    "dev": "echo 'metering: not yet implemented' && exit 0",
+    "lint": "echo 'metering: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'metering: foundation-phase stub' && exit 0",
+    "test": "echo 'metering: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

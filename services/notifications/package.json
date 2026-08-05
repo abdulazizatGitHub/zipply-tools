@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/notifications",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Notifications service: email, in-app, webhooks. Wraps Resend (foundation) behind a vendor-agnostic surface.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'notifications: foundation-phase stub' && exit 0",
+    "dev": "echo 'notifications: not yet implemented' && exit 0",
+    "lint": "echo 'notifications: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'notifications: foundation-phase stub' && exit 0",
+    "test": "echo 'notifications: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

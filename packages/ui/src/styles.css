@@ -1,0 +1,49 @@
+/*
+ * @toolforge/ui base styles.
+ *
+ * Apps import this once via `import '@toolforge/ui/styles.css'`.
+ * It contains:
+ *   - CSS variables exposing tokens for runtime theming
+ *   - Reset extensions (font smoothing, focus-visible defaults)
+ *   - No component styles — those live with their components
+ */
+
+:root {
+  /* Tokens are also available via design-tokens/css for non-React consumers. */
+  --tf-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --tf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --tf-radius-base: 0.25rem;
+  --tf-radius-md: 0.375rem;
+  --tf-radius-lg: 0.5rem;
+
+  --tf-motion-fast: 120ms;
+  --tf-motion-base: 200ms;
+  --tf-motion-slow: 320ms;
+  --tf-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--tf-font-sans);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--tf-color-brand-500, #4a7cff);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

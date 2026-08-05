@@ -1,0 +1,16 @@
+{
+  "name": "@toolforge/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared TypeScript configurations for ToolForge workspaces.",
+  "license": "UNLICENSED",
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "node-service.json",
+    "react-library.json"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

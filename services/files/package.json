@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/files",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Files service: presigned uploads/downloads, retention, virus scan, format detection. The only owner of R2/S3 SDK access.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'files: foundation-phase stub' && exit 0",
+    "dev": "echo 'files: not yet implemented' && exit 0",
+    "lint": "echo 'files: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'files: foundation-phase stub' && exit 0",
+    "test": "echo 'files: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/seo-engine",
+  "version": "0.0.0",
+  "private": true,
+  "description": "SEO engine: sitemap generation, hreflang mapping, structured-data assembly, canonical resolution at scale.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'seo-engine: foundation-phase stub' && exit 0",
+    "dev": "echo 'seo-engine: not yet implemented' && exit 0",
+    "lint": "echo 'seo-engine: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'seo-engine: foundation-phase stub' && exit 0",
+    "test": "echo 'seo-engine: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

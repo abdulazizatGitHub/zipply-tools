@@ -1,0 +1,24 @@
+# Normalize line endings across platforms. Without this, Windows checkouts
+# accidentally rewrite line endings on every commit and the diff is unreadable.
+
+* text=auto eol=lf
+
+# Binary files — don't try to diff or merge.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+*.zip    binary
+
+# Lockfile — diffable but don't touch line endings.
+pnpm-lock.yaml -text
+
+# Generated files — collapse in PRs.
+pnpm-lock.yaml linguist-generated=true
