@@ -44,7 +44,6 @@ jobs:
       - name: setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9 # major version — exact patch resolved from packageManager
           run_install: false
 
       - name: setup node
@@ -90,7 +89,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
           run_install: false
 
       - uses: actions/setup-node@v4
@@ -130,7 +128,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 9, run_install: false }
+        with: { run_install: false }
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -178,7 +176,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 9, run_install: false }
+        with: { run_install: false }
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -204,7 +202,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 9, run_install: false }
+        with: { run_install: false }
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
