@@ -1,0 +1,117 @@
+name: docker
+
+on:
+  push:
+    branches:
+      - main
+      - preprod
+    paths:
+      - "services/**/Dockerfile"
+      - "apps/**/Dockerfile"
+      - "infra/docker/**"
+      - "packages/**"
+      - "services/**"
+      - "apps/**"
+      - ".github/workflows/docker.yml"
+  pull_request:
+    branches:
+      - main
+      - preprod
+    paths:
+      - "services/**/Dockerfile"
+      - "apps/**/Dockerfile"
+      - "infra/docker/**"
+      - ".github/workflows/docker.yml"
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: ${{ github.repository_owner }}
+
+jobs:
+  discover:
+    name: discover targets
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: targets
+        shell: bash
+        run: |
+          MATRIX=$(jq -c -n '{include:[
+            {kind:"service",name:"api-gateway"},
+            {kind:"service",name:"pdf-service"},
+            {kind:"service",name:"qr-service"},
+            {kind:"app",name:"web"}
+          ]}')
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.kind }}/${{ matrix.name }}
+    needs: discover
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: login (push only)
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: pick dockerfile
+        id: pick
+        shell: bash
+        run: |
+          if [[ "${{ matrix.kind }}" == "service" ]]; then
+            echo "file=services/${{ matrix.name }}/Dockerfile" \
+              >> "$GITHUB_OUTPUT"
+          else
+            echo "file=apps/${{ matrix.name }}/Dockerfile" \
+              >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: set image tags
+        id: tags
+        shell: bash
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zipply-${{ matrix.name }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "tags=${IMAGE}:latest,${IMAGE}:${SHORT_SHA}" \
+              >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/preprod" ]]; then
+            echo "tags=${IMAGE}:preprod,${IMAGE}:preprod-${SHORT_SHA}" \
+              >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=${IMAGE}:pr-${{ github.event.number }}" \
+              >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: build (and push on main/preprod)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ steps.pick.outputs.file }}
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.name }}-${{ github.ref_name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}-${{ github.ref_name }}
+          provenance: false

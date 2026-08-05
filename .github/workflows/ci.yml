@@ -1,0 +1,241 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - preprod
+      - dev
+  pull_request:
+    branches:
+      - main # PRs from preprod → main
+      - preprod # PRs from dev → preprod
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+# Cancel superseded runs on a PR — saves CI minutes and keeps signal current.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Turborepo remote cache (when configured). Without these the cache is
+  # local-only — still useful within a job but not across runners.
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
+
+jobs:
+  # --------------------------------------------------------------------------
+  # setup — installs deps once, shared across the matrix via the pnpm-store
+  # cache + the .turbo cache on the runner.
+  # --------------------------------------------------------------------------
+  setup:
+    name: install + lockfile check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      pnpm-store-cache-key: ${{ steps.cache-key.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # turbo needs at least HEAD + parent for --filter='[origin/main]'
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: cache key
+        id: cache-key
+        shell: bash
+        run: echo "value=${{ hashFiles('pnpm-lock.yaml') }}" >> "$GITHUB_OUTPUT"
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: verify lockfile clean
+        run: |
+          if [[ -n "$(git status --porcelain pnpm-lock.yaml)" ]]; then
+            echo "::error::pnpm-lock.yaml drifted after install. Commit the updated lockfile."
+            git diff pnpm-lock.yaml
+            exit 1
+          fi
+
+  # --------------------------------------------------------------------------
+  # quality — runs in parallel across lint/typecheck/test for fast feedback.
+  # Each step uses `--filter='[origin/main]'` to scope to affected packages
+  # on PRs; on main pushes runs everything so cache rehydrates.
+  # --------------------------------------------------------------------------
+  quality:
+    name: ${{ matrix.task }}
+    needs: setup
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [lint, typecheck, test, format:check]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: install
+        run: pnpm install --frozen-lockfile
+
+      - name: cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ matrix.task }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ matrix.task }}-${{ github.ref_name }}-
+            turbo-${{ matrix.task }}-main-
+            turbo-${{ matrix.task }}-
+
+      - name: run ${{ matrix.task }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            pnpm turbo run ${{ matrix.task }} --filter='[origin/main]'
+          else
+            pnpm turbo run ${{ matrix.task }}
+          fi
+
+  # --------------------------------------------------------------------------
+  # dependency hygiene — the cheapest defense against monorepo rot.
+  # --------------------------------------------------------------------------
+  deps:
+    name: dependency hygiene
+    needs: setup
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { run_install: false }
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+
+      - name: detect circular deps (dpdm)
+        run: pnpm deps:graph
+
+      - name: detect duplicated peer/workspace majors
+        run: |
+          # Fail if more than one major of any workspace-internal dep is
+          # resolved — a strong signal of contract drift.
+          pnpm list -r --depth -1 --json > .ci-deps.json
+          node -e "
+            const d = require('./.ci-deps.json');
+            const seen = new Map();
+            for (const pkg of d) {
+              for (const k of ['dependencies','devDependencies','peerDependencies']) {
+                for (const [name, info] of Object.entries(pkg[k] || {})) {
+                  if (!name.startsWith('@toolforge/')) continue;
+                  const ver = info.version || info;
+                  const arr = seen.get(name) || new Set();
+                  arr.add(typeof ver === 'string' ? ver : ver.version);
+                  seen.set(name, arr);
+                }
+              }
+            }
+            let bad = 0;
+            for (const [n, vs] of seen) {
+              if (vs.size > 1) { console.error('multi-version:', n, [...vs]); bad++; }
+            }
+            process.exit(bad ? 1 : 0);
+          "
+
+  # --------------------------------------------------------------------------
+  # manifests — every tool manifest in the repo conforms to the Tool Contract.
+  # A malformed manifest fails the PR before the tool can ever be loaded.
+  # --------------------------------------------------------------------------
+  manifests:
+    name: tool manifests
+    needs: setup
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { run_install: false }
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: validate tool manifests
+        run: pnpm --filter @toolforge/manifest-validator start
+
+  # --------------------------------------------------------------------------
+  # build — only on main and PRs targeting main with the 'build' label, OR
+  # for the final pre-merge check. Builds all packages and uploads artifacts
+  # to feed image build jobs.
+  # --------------------------------------------------------------------------
+  build:
+    name: build
+    needs: [quality, deps]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    if: >
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' ||
+       github.ref == 'refs/heads/preprod')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { run_install: false }
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+
+      - name: cache turbo (build)
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-build-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-build-${{ github.ref_name }}-
+            turbo-build-main-
+
+      - name: build
+        run: pnpm turbo run build
+
+  # --------------------------------------------------------------------------
+  # ci-pass — single required check for branch protection. Stays green only
+  # when every upstream job succeeds.
+  # --------------------------------------------------------------------------
+  ci-pass:
+    name: ci pass
+    if: always()
+    needs: [quality, deps, manifests]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: assert all jobs succeeded
+        run: |
+          if [[ "${{ needs.quality.result }}" != "success" ]] || \
+             [[ "${{ needs.deps.result }}" != "success" ]] || \
+             [[ "${{ needs.manifests.result }}" != "success" ]]; then
+            echo "::error::CI failed. quality=${{ needs.quality.result }} deps=${{ needs.deps.result }} manifests=${{ needs.manifests.result }}"
+            exit 1
+          fi
