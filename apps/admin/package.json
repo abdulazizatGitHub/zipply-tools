@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/admin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Internal operations console: impersonation, refunds, content moderation, feature flag overrides, dead-letter queue inspection.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'admin: foundation-phase stub' && exit 0",
+    "dev": "echo 'admin: not yet implemented' && exit 0",
+    "lint": "echo 'admin: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'admin: foundation-phase stub' && exit 0",
+    "test": "echo 'admin: foundation-phase stub' && exit 0",
+    "clean": "rimraf .next .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

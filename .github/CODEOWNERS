@@ -1,0 +1,50 @@
+# CODEOWNERS — every file has an owner. Unowned files become tomorrow's
+# incidents. PRs touching owned paths require approval from listed owners.
+#
+# Foundation phase: founder/lead-engineer is the default owner everywhere.
+# Phase 2 onward: replace `@founder` with named teams as the org grows.
+
+# Fallback owner for everything not explicitly assigned.
+*                                       @founder
+
+# Platform team owns the contract — the single most load-bearing standard.
+/packages/tool-contract/                @founder
+/packages/platform-client/              @founder
+/packages/telemetry/                    @founder
+/packages/env/                          @founder
+/packages/errors/                       @founder
+/packages/eslint-config/                @founder
+/packages/tsconfig/                     @founder
+/packages/prettier-config/              @founder
+
+# Vendor-boundary clients — touching these has downstream blast radius.
+/packages/auth-client/                  @founder
+/packages/billing-client/               @founder
+/packages/files-client/                 @founder
+/packages/ai-client/                    @founder
+/packages/metering-client/              @founder
+/packages/events/                       @founder
+
+# Design system surface.
+/packages/design-tokens/                @founder
+/packages/ui/                           @founder
+
+# SEO + i18n (changes have ranking blast radius).
+/packages/seo-kit/                      @founder
+/packages/i18n/                         @founder
+/services/seo-engine/                   @founder
+/apps/web/src/middleware.ts             @founder
+
+# Money + identity — extra-careful change cadence.
+/services/billing/                      @founder
+/services/identity/                     @founder
+
+# Infra & CI — platform-team only.
+/infra/                                 @founder
+/.github/                               @founder
+/turbo.json                             @founder
+/pnpm-workspace.yaml                    @founder
+/package.json                           @founder
+
+# Constitution.
+/PLATFORM_FOUNDATION.md                 @founder

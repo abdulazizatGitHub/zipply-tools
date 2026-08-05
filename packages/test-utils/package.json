@@ -1,0 +1,39 @@
+{
+  "name": "@toolforge/test-utils",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared test fixtures, fakes, builders. Reduces per-package boilerplate.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rimraf .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@toolforge/auth-client": "workspace:*",
+    "@toolforge/billing-client": "workspace:*",
+    "@toolforge/files-client": "workspace:*",
+    "@toolforge/metering-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@toolforge/eslint-config": "workspace:*",
+    "@toolforge/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "^9.13.0",
+    "rimraf": "^6.0.1",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

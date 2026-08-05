@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/image-service",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Image processing — resize, convert, compress, background-remove. libvips/Pillow runtime; GPU optional for AI variants.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'image-service: foundation-phase stub' && exit 0",
+    "dev": "echo 'image-service: not yet implemented' && exit 0",
+    "lint": "echo 'image-service: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'image-service: foundation-phase stub' && exit 0",
+    "test": "echo 'image-service: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

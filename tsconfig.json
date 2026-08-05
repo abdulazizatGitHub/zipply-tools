@@ -1,0 +1,11 @@
+{
+  "//": "Root tsconfig — used ONLY by editors for IntelliSense across the monorepo. Actual builds use per-package tsconfigs that extend @toolforge/tsconfig presets. Do not add `include` or `files` here; each workspace owns its own.",
+  "extends": "./packages/tsconfig/base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true
+  },
+  "files": [],
+  "include": [],
+  "exclude": ["node_modules", "**/dist", "**/.next", "**/build"]
+}

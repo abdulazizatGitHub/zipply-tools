@@ -1,0 +1,43 @@
+{
+  "name": "@toolforge/files-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Typed client for the files service: presigned uploads/downloads, retention, virus scan status. R2/S3 SDK access is forbidden outside the files service.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@toolforge/platform-client": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@toolforge/eslint-config": "workspace:*",
+    "@toolforge/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "^9.13.0",
+    "rimraf": "^6.0.1",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
