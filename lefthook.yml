@@ -1,0 +1,50 @@
+# lefthook — local git hooks.
+#
+# Why lefthook: single binary, parallel hook execution, no Node-version
+# drama, plays well with monorepos.
+#
+# Install once: `pnpm install` runs `lefthook install` via the root prepare
+# script (see package.json).
+#
+# Bypass discipline: `--no-verify` is permitted only when the hook is
+# obviously the wrong gate (e.g. emergency hotfix). CI is the real gate.
+
+# Speed budget: hooks should never cost more than ~3s on a typical PR.
+# If they grow past that, move work to CI.
+
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ts,tsx,js,cjs,mjs,jsx,json,md,yaml,yml,css}"
+      run: pnpm exec prettier --check {staged_files}
+      stage_fixed: true
+
+    lint:
+      glob: "*.{ts,tsx,js,cjs,mjs,jsx}"
+      # eslint is a per-package devDependency, not hoisted to the workspace
+      # root (see .npmrc public-hoist-pattern vs. peer-dependency-suffixed
+      # store instances) — `pnpm exec eslint` from repo root can't resolve
+      # the binary or find a root eslint.config.js. Route through turbo
+      # instead, scoped to packages touched since HEAD, so each package's
+      # own local eslint + eslint.config.js resolve correctly (same
+      # mechanism as `pnpm --filter <pkg> lint` and CI's ci.yml).
+      run: pnpm turbo run lint --filter='[HEAD]'
+
+    secret-scan:
+      # Cheap regex-based heuristic. Real secret scanning lives in CI
+      # (gitleaks step in Phase 2).
+      # Delegates to a script (see scripts/hooks/secret-scan.sh) rather than
+      # inlining the regex here — the `{n,}` / `{n}` interval expressions
+      # collide with lefthook's own `{staged_files}`-style placeholder
+      # syntax when inlined directly into a `run:` string.
+      run: bash scripts/hooks/secret-scan.sh {staged_files}
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}
+
+# Phase 2: pre-push hook for affected typecheck + test once the team
+# grows enough that the cost of broken main branches outweighs the local
+# latency cost. Foundation phase keeps pre-push empty for velocity.
