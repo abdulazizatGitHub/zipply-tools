@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/convert-service",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Document and data format conversions — LibreOffice headless, pandoc, ffmpeg. Heaviest tool runtime.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'convert-service: foundation-phase stub' && exit 0",
+    "dev": "echo 'convert-service: not yet implemented' && exit 0",
+    "lint": "echo 'convert-service: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'convert-service: foundation-phase stub' && exit 0",
+    "test": "echo 'convert-service: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

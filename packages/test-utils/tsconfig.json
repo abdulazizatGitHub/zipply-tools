@@ -1,0 +1,9 @@
+{
+  "extends": "@toolforge/tsconfig/node-service.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

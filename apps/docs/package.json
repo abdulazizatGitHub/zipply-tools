@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Developer documentation site (SDK reference, API docs, integration guides).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'docs: foundation-phase stub' && exit 0",
+    "dev": "echo 'docs: not yet implemented' && exit 0",
+    "lint": "echo 'docs: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'docs: foundation-phase stub' && exit 0",
+    "test": "echo 'docs: foundation-phase stub' && exit 0",
+    "clean": "rimraf .next .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

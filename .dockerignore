@@ -1,0 +1,45 @@
+# Build artefacts not needed in images
+node_modules
+**/node_modules
+.pnpm-store
+dist
+**/dist
+build
+**/build
+.next
+**/.next
+.turbo
+**/.turbo
+coverage
+**/coverage
+
+# VCS / CI
+.git
+.gitignore
+.github
+
+# IDE
+.vscode
+.idea
+
+# Env files — secrets must come from runtime, not images
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Tests
+**/__tests__
+**/*.test.ts
+**/*.spec.ts
+e2e
+
+# Docs
+**/*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db

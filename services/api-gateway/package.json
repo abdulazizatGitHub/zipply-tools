@@ -1,0 +1,39 @@
+{
+  "name": "@toolforge/api-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Public API ingress. Auth check, rate limit, request routing to internal services.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch --inspect=0.0.0.0:9229 -r ./src/instrumentation.ts src/index.ts",
+    "start": "node -r ./dist/instrumentation.js dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@fastify/cors": "catalog:",
+    "@fastify/helmet": "catalog:",
+    "@fastify/rate-limit": "catalog:",
+    "@fastify/sensible": "catalog:",
+    "@toolforge/auth-client": "workspace:*",
+    "@toolforge/env": "workspace:*",
+    "@toolforge/telemetry": "workspace:*",
+    "fastify": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@toolforge/eslint-config": "workspace:*",
+    "@toolforge/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "^9.13.0",
+    "rimraf": "^6.0.1",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

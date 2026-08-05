@@ -1,0 +1,42 @@
+{
+  "name": "@toolforge/seo-kit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Programmatic SEO primitives: JSON-LD builders, hreflang assembly, sitemap helpers, canonical resolution.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@toolforge/i18n": "workspace:*"
+  },
+  "devDependencies": {
+    "@toolforge/eslint-config": "workspace:*",
+    "@toolforge/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "^9.13.0",
+    "rimraf": "^6.0.1",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

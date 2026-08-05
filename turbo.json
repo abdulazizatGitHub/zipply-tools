@@ -1,0 +1,66 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "concurrency": "40",
+  "ui": "tui",
+  "globalDependencies": [
+    ".nvmrc",
+    ".node-version",
+    "pnpm-workspace.yaml",
+    "tsconfig.json",
+    ".env.example"
+  ],
+  "globalEnv": ["NODE_ENV", "CI", "VERCEL", "GITHUB_ACTIONS"],
+  "globalPassThroughEnv": ["GITHUB_TOKEN", "TURBO_TOKEN", "TURBO_TEAM"],
+  "remoteCache": {
+    "signature": true
+  },
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**", "out/**", "*.tsbuildinfo"],
+      "env": ["NODE_ENV"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "inputs": [
+        "src/**/*.{ts,tsx,js,jsx,cjs,mjs}",
+        "app/**/*.{ts,tsx}",
+        "eslint.config.{js,cjs,mjs}",
+        "package.json"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": ["*.tsbuildinfo"],
+      "inputs": ["src/**/*.{ts,tsx}", "app/**/*.{ts,tsx}", "tsconfig*.json", "package.json"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"],
+      "inputs": [
+        "src/**/*.{ts,tsx}",
+        "test/**/*.{ts,tsx}",
+        "tests/**/*.{ts,tsx}",
+        "vitest.config.*",
+        "package.json"
+      ]
+    },
+    "test:e2e": {
+      "dependsOn": ["^build", "build"],
+      "cache": false
+    },
+    "depcheck": {
+      "cache": false,
+      "outputs": []
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

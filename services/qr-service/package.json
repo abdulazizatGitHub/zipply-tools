@@ -1,0 +1,42 @@
+{
+  "name": "@toolforge/qr-service",
+  "version": "0.0.0",
+  "private": true,
+  "description": "QR code generation service — encodes content and renders base QR PNGs.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node -r ./dist/instrumentation.js dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@fastify/cors": "catalog:",
+    "@fastify/helmet": "catalog:",
+    "@fastify/rate-limit": "catalog:",
+    "@fastify/sensible": "catalog:",
+    "@toolforge/env": "workspace:*",
+    "@toolforge/errors": "workspace:*",
+    "@toolforge/telemetry": "workspace:*",
+    "@toolforge/tool-contract": "workspace:*",
+    "@types/qrcode": "catalog:",
+    "fastify": "catalog:",
+    "qrcode": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@toolforge/eslint-config": "workspace:*",
+    "@toolforge/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "^9.13.0",
+    "rimraf": "^6.0.1",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

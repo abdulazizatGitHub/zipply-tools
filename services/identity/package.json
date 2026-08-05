@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/identity",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Identity service: users, orgs, sessions, API keys, RBAC. Wraps Clerk (foundation) → Ory (year 1+).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'identity: foundation-phase stub' && exit 0",
+    "dev": "echo 'identity: not yet implemented' && exit 0",
+    "lint": "echo 'identity: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'identity: foundation-phase stub' && exit 0",
+    "test": "echo 'identity: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}

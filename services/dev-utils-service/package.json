@@ -1,0 +1,19 @@
+{
+  "name": "@toolforge/dev-utils-service",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Developer utilities — JSON/JWT/regex/hash/encode. Pure compute; ideal Edge Function target.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'dev-utils-service: foundation-phase stub' && exit 0",
+    "dev": "echo 'dev-utils-service: not yet implemented' && exit 0",
+    "lint": "echo 'dev-utils-service: foundation-phase stub' && exit 0",
+    "typecheck": "echo 'dev-utils-service: foundation-phase stub' && exit 0",
+    "test": "echo 'dev-utils-service: foundation-phase stub' && exit 0",
+    "clean": "rimraf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}
