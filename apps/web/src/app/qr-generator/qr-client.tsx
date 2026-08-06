@@ -893,7 +893,7 @@ export function QrClient() {
       </div>
 
       {/* ── Center: Preview ── */}
-      <div className="flex flex-1 flex-col items-center gap-5">
+      <div className="order-first flex flex-1 flex-col items-center gap-5 lg:order-none">
         <div
           className="relative flex w-full max-w-sm items-center justify-center rounded-2xl border border-neutral-200 bg-neutral-100 shadow-sm"
           style={{ aspectRatio: '1/1' }}

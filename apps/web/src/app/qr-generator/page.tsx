@@ -93,6 +93,7 @@ export default function QrGeneratorPage(): ReactElement {
 
       {/* Tool hero */}
       <div className="border-b border-neutral-200 bg-white">
+        <div className="h-1 w-full bg-gradient-to-r from-violet-500 to-brand-400" />
         <div className="mx-auto max-w-6xl px-6 py-8">
           <div className="flex items-center gap-4">
             <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-brand-500 text-white shadow-[0_4px_14px_rgba(124,58,237,0.35)]">

@@ -79,6 +79,7 @@ export default function PdfSplitPage(): ReactElement {
 
       {/* ── Tool hero strip ── */}
       <div className="border-b border-neutral-200 bg-white">
+        <div className="h-1 w-full bg-gradient-to-r from-violet-500 to-violet-400" />
         <div className="mx-auto max-w-5xl px-6 py-8">
           <div className="flex items-center gap-4">
             <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-violet-500 text-white shadow-[0_4px_14px_rgba(124,58,237,0.35)]">
@@ -118,7 +119,7 @@ export default function PdfSplitPage(): ReactElement {
           </div>
 
           {/* Sidebar */}
-          <aside className="space-y-6">
+          <aside className="hidden space-y-6 lg:block">
             {/* How to use */}
             <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
               <h2 className="mb-4 text-xs font-bold uppercase tracking-widest text-neutral-400">

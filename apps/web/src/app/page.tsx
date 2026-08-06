@@ -10,9 +10,7 @@ import { SiteNav } from '../components/site-nav';
 import {
   IconArrowRight,
   IconClock,
-  IconCompress,
   IconDownload,
-  IconImageResize,
   IconMerge,
   IconQr,
   IconShield,
@@ -32,7 +30,7 @@ const LIVE_TOOLS = [
     tagline: 'Combine multiple PDFs into one file, in the order you choose.',
     Icon: IconMerge,
     gradient: 'from-brand-600 to-brand-500',
-    glow: 'rgba(47,95,230,0.25)',
+    glow: 'rgba(5,150,105,0.25)',
     steps: ['Drop files', 'Reorder', 'Download'],
   },
   {
@@ -57,12 +55,6 @@ const LIVE_TOOLS = [
     glow: 'rgba(124,58,237,0.22)',
     steps: ['Upload', 'Set ranges', 'Download parts'],
   },
-] as const;
-
-const COMING_SOON = [
-  { id: 'pdf-compress', name: 'PDF Compress', category: 'PDF', Icon: IconCompress },
-  { id: 'image-resize', name: 'Image Resize', category: 'Image', Icon: IconImageResize },
-  { id: 'qr-generate', name: 'QR Generator', category: 'QR', Icon: IconQr },
 ] as const;
 
 const HOW_IT_WORKS = [
@@ -130,7 +122,7 @@ export default function HomePage(): ReactElement {
             <div className="animate-fade-up delay-3 mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/pdf-merge"
-                className="group flex items-center gap-2.5 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(47,95,230,0.35)] transition-all hover:bg-brand-500 hover:shadow-[0_0_28px_rgba(74,124,255,0.45)]"
+                className="group flex items-center gap-2.5 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(5,150,105,0.35)] transition-all hover:bg-brand-500 hover:shadow-[0_0_28px_rgba(16,185,129,0.45)]"
               >
                 <IconMerge className="h-4 w-4" />
                 Merge PDFs
@@ -163,6 +155,30 @@ export default function HomePage(): ReactElement {
         </div>
       </section>
 
+      {/* ── Stats bar ── */}
+      <section className="border-y border-neutral-200 bg-white py-5">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { value: '100%', label: 'Free forever' },
+              { value: '0', label: 'Sign-ups needed' },
+              { value: '1 hr', label: 'File retention' },
+              { value: '∞', label: 'Files per day' },
+            ].map(({ value, label }) => (
+              <div key={label} className="text-center">
+                <p
+                  className="text-2xl font-extrabold text-neutral-950"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {value}
+                </p>
+                <p className="mt-0.5 text-xs text-neutral-500">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Tools ────────────────────────────────────────────────────────── */}
       <section className="bg-neutral-50 px-6 py-20">
         <div className="mx-auto max-w-6xl">
@@ -181,7 +197,7 @@ export default function HomePage(): ReactElement {
             <p className="hidden text-sm text-neutral-400 sm:block">3 more tools in development</p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {LIVE_TOOLS.map(
               ({ id, href, category, name, tagline, Icon, gradient, glow, steps }, i) => (
                 <Link
@@ -237,26 +253,6 @@ export default function HomePage(): ReactElement {
                 </Link>
               ),
             )}
-          </div>
-
-          {/* Coming soon */}
-          <div className="mt-5 grid grid-cols-3 gap-4">
-            {COMING_SOON.map(({ id, name, category, Icon }) => (
-              <div
-                key={id}
-                className="flex items-center gap-3 rounded-xl border border-dashed border-neutral-200 bg-white/60 px-4 py-3.5 opacity-50"
-              >
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-                    {category}
-                  </p>
-                  <p className="text-sm font-medium text-neutral-500">{name}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -316,7 +312,8 @@ export default function HomePage(): ReactElement {
             <span className="text-sm font-semibold text-neutral-400">Zipply</span>
           </div>
           <p className="text-xs text-neutral-600">
-            Free file tools · No account · Files deleted automatically · {new Date().getFullYear()}
+            Free · No sign-up · No watermarks · Files auto-deleted · © {new Date().getFullYear()}{' '}
+            Zipply
           </p>
         </div>
       </footer>

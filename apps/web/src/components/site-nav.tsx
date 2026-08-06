@@ -60,16 +60,13 @@ export function SiteNav({ breadcrumbs, alwaysGlass }: SiteNavProps): ReactElemen
         </Link>
 
         {/* Right */}
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-2">
           <Link
             href="/"
-            className="hidden rounded-lg px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:bg-white/[0.06] hover:text-neutral-100 sm:block"
+            className="rounded-lg px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:bg-white/[0.06] hover:text-neutral-100"
           >
             All tools
           </Link>
-          <span className="ml-2 rounded-full border border-neutral-700/60 bg-neutral-800/60 px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-neutral-500">
-            BETA
-          </span>
         </nav>
       </div>
 
