@@ -1,0 +1,160 @@
+# Zipply — Decision Log
+
+## How to read this
+
+Each decision has: the question, what was decided, why, and what was rejected. New decisions are
+added at the top (newest first). This log exists because `CONTRIBUTING.md` and `MANUAL.md` both
+reference a formal `docs/adr/` process that was never instantiated — this file is the actual record
+of decisions made in this repository so far. If `docs/adr/` gets created later, migrate these in.
+
+---
+
+## ADR-007: QR generation is client-side
+
+Date: 2026-08-06 Status: Decided
+
+**Question:** Should QR codes be generated server-side (via `qr-service`) or client-side (in the
+browser)?
+
+**Decision:** Client-side, using the `custom-qr-code` npm library (MIT license), in
+`apps/web/src/app/qr-generator/qr-canvas.ts`.
+
+**Why:** Instant generation with no server round-trip, works offline, no server load for QR
+generation, no file cleanup needed — a QR code is derived purely from user input, so there's nothing
+to store or retain.
+
+**What was rejected:**
+
+- `@qr-platform/qr-code.js` — commercial license, requires a paid plan or attribution badge for
+  commercial use. Rejected on licensing grounds.
+- Hand-written canvas renderer — attempted, produced broken shapes and clipped finder patterns.
+  Replaced with the library.
+
+**Consequence to be aware of:** `services/qr-service` still exists and is a fully working, tested
+tool (`qr-generate`, using the `qrcode` npm package) reachable via `api-gateway`. It is not called
+by the web app. It ships its own Docker image line in `.github/workflows/docker.yml`'s build matrix
+(once its missing Dockerfile is added — see `ZIPPLY_CONTEXT.md` Known Issues) for a code path that
+currently serves zero product traffic. This wasn't reversed after ADR-007 was made; it's lingering
+scope, not an oversight anyone should "clean up" without checking whether qr-service has a planned
+future use (e.g., a public API) first.
+
+---
+
+## ADR-006: Brand name — Zipply
+
+Date: 2026-08-05 (approx. — first appears in commit `b7d18e0`) Status: Decided
+
+**Question:** What is the public brand name for this product?
+
+**Decision:** Zipply, domain zipply.tools.
+
+**Why:** Two syllables, "zip" carries speed/compression/ease semantics, globally pronounceable,
+differentiates from generic blue PDF tool competitors.
+
+**What was rejected:**
+
+- ToolForge — the original internal name, sounds like a developer platform, not a consumer tool.
+  Kept as the internal package scope (`@toolforge/*`) and root package name (`toolforge`) — this is
+  intentional, not an inconsistency to "fix." Don't rename the npm scope.
+
+**Note:** `README.md`, `LICENSE`, and all `apps/web` user-facing copy use "Zipply." Internal docs
+(`PLATFORM_FOUNDATION.md`, `MANUAL.md`, `CONTRIBUTING.md`, `AGENT_PROMPT_PHASE_2.md`) predate the
+rename and still say "ToolForge" throughout — that's expected; they describe the platform
+architecture, which didn't change name internally.
+
+---
+
+## ADR-005: QR frame rendering approach
+
+Date: 2026-08-06 Status: Decided
+
+**Question:** How should QR shape frames (the decorative borders/banners around a QR code) be
+rendered?
+
+**Decision:** Two modes, both implemented in `qr-canvas.ts`:
+
+- **Frame shapes** (circle, rounded, square, shield, hexagon, diamond, brackets, badge, speech
+  bubble): draw the full square QR at reduced scale, then add the frame chrome as SVG shapes drawn
+  _around_ it, sized proportionally via a `k = qrSize / 280` scale factor.
+- **Social card presets**: fixed platform-branded card layout (header band + QR + footer CTA) via
+  `buildSocialCard()`, which also recolors the QR's own dots/corners/background to match the
+  platform brand (see `PLATFORM_QR_COLORS` in `qr-canvas.ts`) instead of the user's chosen
+  foreground/background colors.
+
+**Why:** An early attempt used `ctx.clip()` on the QR's own canvas to carve frame shapes directly
+out of the QR — this clipped the finder patterns (the three big corner squares), making the QR
+unscannable. The current approach never clips the QR's own drawing; frames are separate SVG chrome
+composited around an untouched QR render.
+
+---
+
+## ADR-004: Color system — Emerald replacing Blue
+
+Date: 2026-08-06 (commit `644b971`) Status: Decided
+
+**Question:** What should the primary brand color be?
+
+**Decision:** Emerald (`#059669`-family) as the primary brand color, replacing an earlier blue
+(`#2f5fe6` — still visible as a leftover default in `qr-client.tsx`'s `DEF.frameColor`, which wasn't
+updated when the rest of the site's palette changed).
+
+**Why:** Every major PDF tool competitor (iLovePDF, Smallpdf, Adobe) uses blue. Emerald
+differentiates while remaining trustworthy and professional.
+
+**Known follow-up:** the QR generator's default frame color constant still uses the old blue
+(`apps/web/src/app/qr-generator/qr-client.tsx:35`, `frameColor: '#2f5fe6'`). This is a leftover from
+before the rebrand, not a deliberate exception — worth a one-line fix when next touching that file.
+
+---
+
+## ADR-003: PDF rendering — pdf-lib (pure JS)
+
+Date: Foundation phase (predates this decision log) Status: Decided
+
+**Question:** Which library powers PDF merge and split?
+
+**Decision:** `pdf-lib` (pure JavaScript, no native binaries), `^1.17.1`.
+
+**Why:** No native binary dependencies, works in Node without system packages, sufficient for merge
+and split operations. `services/pdf-service/src/tools/pdf-merge/manifest.ts` documents this inline
+as "ADR-0001" in its own comment (a numbering that doesn't line up with this log — treat this file
+as the current source of truth going forward).
+
+**Production note:** for advanced operations (OCR, form filling, complex compression) a future ADR
+should evaluate Ghostscript or qpdf via a container runtime, per `PLATFORM_FOUNDATION.md` §3's
+original `pdf-service` boundary justification.
+
+---
+
+## ADR-002: Monorepo tooling — Turborepo + pnpm
+
+Date: Foundation phase (predates this decision log) Status: Decided
+
+**Question:** What build system manages the monorepo?
+
+**Decision:** Turborepo (`^2.2.3`) for task orchestration, pnpm (`9.12.3`, pinned via
+`packageManager`
+
+- Corepack) for package management.
+
+**Why:** Turborepo's affected-only builds (`--filter='[origin/main]'`, used throughout
+`.github/workflows/ci.yml`) cut CI time as the repo grows. pnpm's strict `node_modules` prevents
+phantom dependency issues.
+
+---
+
+## ADR-001: Service architecture — microservices on Fly.io
+
+Date: Foundation phase (predates this decision log) Status: Decided, **not yet executed**
+
+**Question:** How are backend services deployed?
+
+**Decision:** Independent Fastify services, each in its own Docker container, deployed to Fly.io.
+Web app on Vercel.
+
+**Why:** Each service can scale independently. Fly.io has a generous free tier and runs Docker
+natively. Vercel handles Next.js optimally (edge, ISR, CDN).
+
+**Status as of 2026-08-06:** Docker images build for `api-gateway`, `pdf-service`, and (once its
+Dockerfile is added) `qr-service`. Nothing is actually deployed to Fly.io, Vercel, or any host —
+this ADR describes the target, not current reality. See `ZIPPLY_CONTEXT.md` § Deployment status.
