@@ -182,6 +182,14 @@ jobs:
           node-version: "22"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+
+      - name: build workspace packages
+        run: pnpm turbo run build --filter=@toolforge/tool-contract...
+        # builds tool-contract and its workspace dependencies (@toolforge/errors,
+        # @toolforge/telemetry) — manifest-validator imports tool-contract's
+        # dist/ output (see package.json main/types), which doesn't exist
+        # without this.
+
       - name: validate tool manifests
         run: pnpm --filter @toolforge/manifest-validator start
 

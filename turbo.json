@@ -55,6 +55,12 @@
       "dependsOn": ["^build", "build"],
       "cache": false
     },
+    "format:check": {
+      "cache": false
+    },
+    "//#format:check": {
+      "cache": false
+    },
     "depcheck": {
       "cache": false,
       "outputs": []
