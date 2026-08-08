@@ -42,10 +42,10 @@ jobs:
       - id: targets
         shell: bash
         run: |
+          # qr-service intentionally excluded until it has a Dockerfile — see DECISIONS.md ADR-007
           MATRIX=$(jq -c -n '{include:[
             {kind:"service",name:"api-gateway"},
             {kind:"service",name:"pdf-service"},
-            {kind:"service",name:"qr-service"},
             {kind:"app",name:"web"}
           ]}')
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
