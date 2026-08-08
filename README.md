@@ -1,5 +1,8 @@
 # Zipply
 
+> Project context and living documentation live in [`/docs`](./docs) — start with
+> [`docs/ZIPPLY_CONTEXT.md`](./docs/ZIPPLY_CONTEXT.md).
+
 > Copyright (c) 2025 Zipply. All rights reserved. Proprietary and confidential software.
 
 Free online file tools — fast, private, no account required.

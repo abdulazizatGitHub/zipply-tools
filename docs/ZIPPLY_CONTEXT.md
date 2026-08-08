@@ -4,7 +4,7 @@ Last updated: 2026-08-06 (branch `dev`, commit `644b971`)
 
 > **Read this file first, every session.** It describes what actually exists in this repository
 > today, not what was originally planned. Where reality and the original plan
-> ([`PLATFORM_FOUNDATION.md`](./PLATFORM_FOUNDATION.md)) diverge, this file wins. If you find this
+> ([`PLATFORM_FOUNDATION.md`](../PLATFORM_FOUNDATION.md)) diverge, this file wins. If you find this
 > file is stale, fix it — don't silently work around it.
 
 ## What this is
@@ -20,7 +20,8 @@ ai-gateway, etc.) exist only as placeholder stubs.
 - Domain: zipply.tools (not yet pointed at anything — see [Deployment status](#deployment-status))
 - Brand: Zipply (public-facing name; internal package scope is still `@toolforge/*` — see
   [DECISIONS.md](./DECISIONS.md) ADR-006)
-- License: Proprietary — Copyright (c) 2025 Zipply. All rights reserved. See [`LICENSE`](./LICENSE).
+- License: Proprietary — Copyright (c) 2025 Zipply. All rights reserved. See
+  [`LICENSE`](../LICENSE).
 - Contact: abdulwork058@gmail.com
 
 ## Technology stack
@@ -48,7 +49,7 @@ Versions below are read directly from `package.json` files — treat this list a
 ## Repository
 
 - GitHub: https://github.com/abdulazizatGitHub/zipply-tools
-- Branch strategy (see [`.github/BRANCH_STRATEGY.md`](./.github/BRANCH_STRATEGY.md)):
+- Branch strategy (see [`.github/BRANCH_STRATEGY.md`](../.github/BRANCH_STRATEGY.md)):
   - `dev` — active development. CI runs quality checks only (lint, typecheck, test, format, tool
     manifests). No Docker build.
   - `preprod` — staging. Full quality checks + Docker build + push to
@@ -63,12 +64,16 @@ Versions below are read directly from `package.json` files — treat this list a
 ### Home page
 
 `apps/web/src/app/page.tsx` — hero section, stats strip, a grid of the three live tools, a "how it
-works" section, footer. Server-rendered, Tailwind-styled, emerald color system.
+works" section, footer. Server-rendered, Tailwind-styled. **Note:** the site's actual rendered
+colors (via `@toolforge/design-tokens`' `brand` scale, `#059669`-family) are still emerald as of
+this writing — the frozen brand decision has since moved to Penn Blue `#141E5A` (see `DECISIONS.md`
+ADR-004), but that hasn't been migrated into the design tokens or rendered site yet; that migration
+is tracked as remaining P1 scope in `NEXT_STEPS.md`.
 
-**Known copy bug:** the hero badge reads "2 tools live · 3 more shipping soon"
-(`apps/web/src/app/page.tsx:103`) but the `LIVE_TOOLS` array on the same page already lists all
-three tools (`pdf-merge`, `qr-generator`, `pdf-split`) as live. The copy hasn't been updated since
-the third tool shipped.
+**Known copy bug — fixed 2026-08-08.** The hero badge read "2 tools live · 3 more shipping soon"
+(`apps/web/src/app/page.tsx:103`) even though the `LIVE_TOOLS` array on the same page already listed
+all three tools (`pdf-merge`, `qr-generator`, `pdf-split`) as live — the copy hadn't been updated
+since the third tool shipped. Now reads "3 tools live".
 
 ### PDF Merge — fully functional end-to-end
 
@@ -123,15 +128,17 @@ Runs on push/PR to `main`, `preprod`, `dev`:
 
 ### Docker images (`.github/workflows/docker.yml`)
 
-Builds on push to `main`/`preprod` (path-filtered) for a 4-item matrix: `api-gateway`,
-`pdf-service`, `qr-service` (services) and `web` (app). Pushes to
-`ghcr.io/abdulazizatgithub/zipply-{name}` with `:latest`/`:{sha}` on `main` and
-`:preprod`/`:preprod-{sha}` on `preprod`.
+Builds on push to `main`/`preprod` (path-filtered) for a 3-item matrix: `api-gateway`, `pdf-service`
+(services) and `web` (app). Pushes to `ghcr.io/abdulazizatgithub/zipply-{name}` with
+`:latest`/`:{sha}` on `main` and `:preprod`/`:preprod-{sha}` on `preprod`.
 
-**Known gap:** `services/qr-service` has no `Dockerfile`. Only three Dockerfiles exist in the repo:
-`apps/web/Dockerfile`, `services/api-gateway/Dockerfile`, `services/pdf-service/Dockerfile`. The
-docker workflow's build matrix will fail on the `service/qr-service` job the next time it runs
-against a path that triggers it.
+**Known gap (fixed 2026-08-08):** `services/qr-service` has no `Dockerfile`. Only three Dockerfiles
+exist in the repo: `apps/web/Dockerfile`, `services/api-gateway/Dockerfile`,
+`services/pdf-service/Dockerfile`. `qr-service` was previously in the docker workflow's build matrix
+with no Dockerfile to build, which would fail that job on the next qualifying push — it has since
+been removed from the matrix (see `DECISIONS.md` ADR-007) rather than the missing Dockerfile being
+added, so the workflow itself is no longer broken. `qr-service` still cannot be built into a Docker
+image or deployed until a Dockerfile is added back for it.
 
 ### Brand / naming
 
@@ -263,17 +270,20 @@ You do **not** need any cloud credentials (Clerk, Stripe, OpenAI, Vercel, Fly.io
   commit
   `790fa32 fix: add format:check to turbo pipeline, build tool-contract before manifest validation`,
   which fixed a prior CI ordering bug).
-- **`preprod`/`main`:** additionally build Docker images and push to ghcr.io — **but this will fail
-  for `qr-service`** because its Dockerfile doesn't exist (see Known Issues).
+- **`preprod`/`main`:** additionally build Docker images and push to ghcr.io, for `api-gateway`,
+  `pdf-service`, and `web`. `qr-service` is intentionally excluded from this matrix (see Known Issue
+  #1) until it has a Dockerfile.
 - No deployment step exists anywhere in the pipeline. Nothing auto-deploys after a successful build.
 
-## Known issues (as of 2026-08-06)
+## Known issues (as of 2026-08-08)
 
-1. **`services/qr-service` has no `Dockerfile`**, but `.github/workflows/docker.yml`'s build matrix
-   includes it. The next push to `main`/`preprod` that triggers the docker workflow (path filters
-   include `services/**`) will fail that job.
-2. **Stale home page copy**: "2 tools live · 3 more shipping soon" while 3 tools are already listed
-   as live (`apps/web/src/app/page.tsx:103`).
+1. **`services/qr-service` still has no `Dockerfile`** — it was previously in
+   `.github/workflows/docker.yml`'s build matrix with nothing to build, which would have failed that
+   job on the next qualifying push. **Fixed 2026-08-08** by removing it from the matrix (see
+   `DECISIONS.md` ADR-007) rather than adding the Dockerfile, so the workflow no longer fails — but
+   `qr-service` still can't be built into an image or deployed until a Dockerfile exists for it.
+2. **Stale home page copy — fixed 2026-08-08.** Was: "2 tools live · 3 more shipping soon" while 3
+   tools were already listed as live (`apps/web/src/app/page.tsx:103`); now reads "3 tools live".
 3. **`/[locale]/qr-generator` doesn't exist** — `apps/web/src/app/[locale]/` has `pdf-merge` and
    `pdf-split` but not `qr-generator`.
 4. **Copyright headers are inconsistent** — present in 9 of 135 source files, mostly entrypoints and

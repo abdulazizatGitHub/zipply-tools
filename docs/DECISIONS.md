@@ -32,11 +32,17 @@ to store or retain.
 
 **Consequence to be aware of:** `services/qr-service` still exists and is a fully working, tested
 tool (`qr-generate`, using the `qrcode` npm package) reachable via `api-gateway`. It is not called
-by the web app. It ships its own Docker image line in `.github/workflows/docker.yml`'s build matrix
-(once its missing Dockerfile is added — see `ZIPPLY_CONTEXT.md` Known Issues) for a code path that
-currently serves zero product traffic. This wasn't reversed after ADR-007 was made; it's lingering
-scope, not an oversight anyone should "clean up" without checking whether qr-service has a planned
-future use (e.g., a public API) first.
+by the web app. This wasn't reversed after ADR-007 was made; it's lingering scope, not an oversight
+anyone should "clean up" without checking whether qr-service has a planned future use (e.g., a
+public API) first.
+
+**Follow-up (2026-08-08):** `services/qr-service` has no `Dockerfile`, but it was still listed in
+`.github/workflows/docker.yml`'s build matrix, which would fail that job on the next qualifying
+push. Rather than adding a Dockerfile in a docs-correctness pass, `qr-service` was removed from the
+matrix — see the comment left at the removal site in `docker.yml`. It needs to be added back once it
+has a Dockerfile, and its Docker image + deploy story (does it get its own deploy, or fold into
+`pdf-service`?) is still an open question — see `ZIPPLY_CONTEXT.md` Known Issues and
+`NEXT_STEPS.md`.
 
 ---
 
@@ -90,7 +96,7 @@ composited around an untouched QR render.
 
 ## ADR-004: Color system — Emerald replacing Blue
 
-Date: 2026-08-06 (commit `644b971`) Status: Decided
+Date: 2026-08-06 (commit `644b971`) Status: Decided, **superseded 2026-08-08 — see below**
 
 **Question:** What should the primary brand color be?
 
@@ -101,9 +107,21 @@ updated when the rest of the site's palette changed).
 **Why:** Every major PDF tool competitor (iLovePDF, Smallpdf, Adobe) uses blue. Emerald
 differentiates while remaining trustworthy and professional.
 
-**Known follow-up:** the QR generator's default frame color constant still uses the old blue
-(`apps/web/src/app/qr-generator/qr-client.tsx:35`, `frameColor: '#2f5fe6'`). This is a leftover from
-before the rebrand, not a deliberate exception — worth a one-line fix when next touching that file.
+**Known follow-up (resolved 2026-08-08 — see Superseded note below):** the QR generator's default
+frame color constant used the old blue (`apps/web/src/app/qr-generator/qr-client.tsx:35`,
+`frameColor: '#2f5fe6'`). This was a leftover from before the rebrand, not a deliberate exception —
+it has now been fixed, but to the new brand primary below, not to emerald.
+
+**Superseded (2026-08-08):** the frozen brand primary is now **Penn Blue `#141E5A`**, with a warm
+off-white base (`#F8F5F1`) and `#fa2d14` reserved strictly for danger/delete actions — never a brand
+accent. This decision is not re-litigated here; it's recorded as a fact to encode going forward.
+Per-tool accent colors are not finalized as of this note — don't invent hex values for them. **This
+has not yet been executed in code.** `packages/design-tokens/src/index.ts`'s `brand` scale
+(`brand.600 = '#059669'`) and the entire rendered site still use emerald — migrating the actual
+design tokens and UI to Penn Blue is P1 scope (see `NEXT_STEPS.md`), not done by this note. The one
+exception is `qr-generator/qr-client.tsx`'s `DEF.frameColor`, which was updated directly to
+`#141E5A` as a scoped, literal fix (see `AGENT_INSTRUCTIONS.md` hard rule #9) — it is the only place
+in the live UI that currently reflects the new primary.
 
 ---
 
@@ -155,6 +173,7 @@ Web app on Vercel.
 **Why:** Each service can scale independently. Fly.io has a generous free tier and runs Docker
 natively. Vercel handles Next.js optimally (edge, ISR, CDN).
 
-**Status as of 2026-08-06:** Docker images build for `api-gateway`, `pdf-service`, and (once its
-Dockerfile is added) `qr-service`. Nothing is actually deployed to Fly.io, Vercel, or any host —
-this ADR describes the target, not current reality. See `ZIPPLY_CONTEXT.md` § Deployment status.
+**Status as of 2026-08-08:** Docker images build for `api-gateway`, `pdf-service`, and `web`.
+`qr-service` was removed from the build matrix (see ADR-007 follow-up) and will need a Dockerfile
+before it can be added back. Nothing is actually deployed to Fly.io, Vercel, or any host — this ADR
+describes the target, not current reality. See `ZIPPLY_CONTEXT.md` § Deployment status.

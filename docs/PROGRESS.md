@@ -1,6 +1,6 @@
 # Zipply — Progress Tracker
 
-Last updated: 2026-08-06. See [ZIPPLY_CONTEXT.md](./ZIPPLY_CONTEXT.md) for full detail behind every
+Last updated: 2026-08-08. See [ZIPPLY_CONTEXT.md](./ZIPPLY_CONTEXT.md) for full detail behind every
 line here.
 
 ## Phase 1: Foundation (COMPLETE)
@@ -36,7 +36,7 @@ Every package and service, rated by what actually exists on disk (`src/` content
 | ------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `api-gateway`       | COMPLETE (as a skeleton) | Real Fastify service: env validation, OTel preload, graceful shutdown, `/healthz`+`/readyz`, auth preHandler, proxy routing to `pdf-`/`qr-` prefixed tools. Auth always resolves anonymous because `identity` is a stub. |
 | `pdf-service`       | COMPLETE                 | Real tool registry pattern + `pdf-merge` and `pdf-split` tools (pdf-lib). In-memory dev-only file store.                                                                                                                 |
-| `qr-service`        | COMPLETE, but unused     | Real tool registry + `qr-generate` tool (`qrcode` npm lib). Not called by the web app; also missing a Dockerfile.                                                                                                        |
+| `qr-service`        | COMPLETE, but unused     | Real tool registry + `qr-generate` tool (`qrcode` npm lib). Not called by the web app; still missing a Dockerfile, and intentionally excluded from the CI Docker matrix until it has one (see `DECISIONS.md` ADR-007).   |
 | `identity`          | STUB                     | `package.json` + `README.md` only.                                                                                                                                                                                       |
 | `billing`           | STUB                     | Same.                                                                                                                                                                                                                    |
 | `metering`          | STUB                     | Same.                                                                                                                                                                                                                    |
@@ -76,7 +76,10 @@ worked informally/directly rather than through that process.
 - `qr-generate` service built (though not consumed by the frontend).
 - QR Generator built as a fully client-side tool: 6 dot styles, 3 corner styles, 9 frame templates,
   8 social platform presets, logo embedding, 7 content-type formatters.
-- Web app redesign: emerald color system, mobile-responsive layouts (commit `644b971`).
+- Web app redesign: emerald color system, mobile-responsive layouts (commit `644b971`). **Note:**
+  the brand primary has since moved to Penn Blue `#141E5A` (superseding emerald — see `DECISIONS.md`
+  ADR-004), but that migration into `@toolforge/design-tokens` and the rendered site is still
+  outstanding.
 - CI pipeline hardening: `format:check` added to the turbo pipeline, `tool-contract` now builds
   before `manifest-validator` runs (commit `790fa32`).
 - Branch strategy and Docker workflow configured for `dev`/`preprod`/`main` (commit `b7d18e0`).
@@ -85,7 +88,9 @@ worked informally/directly rather than through that process.
 
 ### In progress / partially done
 
-- Docker image matrix — 3 of 4 service/app Dockerfiles exist; `qr-service`'s is missing.
+- Docker image matrix — all 3 currently-included entries (`api-gateway`, `pdf-service`, `web`) have
+  Dockerfiles; `qr-service` is intentionally excluded until it gets one (see `DECISIONS.md`
+  ADR-007).
 - Locale-routed pages — `pdf-merge` and `pdf-split` exist under `[locale]/`, `qr-generator` doesn't.
 - Copyright header rollout — 9 of 135 source files have the header.
 
@@ -119,7 +124,8 @@ worked informally/directly rather than through that process.
 - [ ] Feature flags (PostHog)
 - [ ] Deploy pipeline (GitHub Actions → Fly.io + Vercel)
 - [ ] Runbook written
-- [ ] `services/qr-service/Dockerfile` created so the existing docker workflow stops failing
+- [ ] `services/qr-service/Dockerfile` created so it can be added back to the docker build matrix
+      and actually get deployed
 
 ## Phase 4: Growth Tools (FUTURE)
 
@@ -134,10 +140,5 @@ Billing, Stripe, paid plans — deliberately deferred. `services/billing` and
 
 ## Priority order for next work
 
-1. **UI redesign and mobile responsiveness** — see [NEXT_STEPS.md](./NEXT_STEPS.md) Priority 1.
-   Agreed as the explicit next priority.
-2. Fix the `services/qr-service` missing Dockerfile before the next `preprod`/`main` push touches
-   Docker-relevant paths — this is a currently-broken CI job waiting to happen, not a hypothetical.
-3. Deploy to a preprod environment so the product has a real URL for testing.
-4. Add a PDF Compress tool.
-5. Everything else in Phase 3 (real identity/files/metering, observability, production deploy).
+Priority order lives in [NEXT_STEPS.md](./NEXT_STEPS.md) — this file tracks phase/status, not
+ordering. Don't restate a priority list here; update NEXT_STEPS.md instead.

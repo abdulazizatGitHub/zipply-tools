@@ -1,6 +1,6 @@
 # Zipply — Agent Instructions
 
-Last updated: 2026-08-06
+Last updated: 2026-08-08
 
 ## Read this before touching any code
 
@@ -59,6 +59,15 @@ require PRs with review per `.github/BRANCH_STRATEGY.md`.
 7. Use conventional commits: `feat/fix/chore/refactor/docs/style/perf/test(scope): subject`.
 8. Never commit `.env` files with real values — only `.env.example` files documenting variable
    _names_ and shapes.
+9. No hardcoded colors — use `@toolforge/design-tokens` rather than literal hex values in component
+   code. The frozen brand palette is Penn Blue `#141E5A` (primary), warm off-white `#F8F5F1` (base),
+   and `#fa2d14` (danger/delete only — never a brand accent); see `DECISIONS.md` ADR-004. Per-tool
+   accents are not finalized — don't invent hex values for them. (The literal `#141E5A` set as the
+   QR tool's default frame color in `qr-generator/qr-client.tsx` on 2026-08-08 is a documented,
+   scoped exception pending the token migration — see `DECISIONS.md` ADR-004 — not a pattern to
+   repeat.)
+10. Never push directly to `preprod` or `main` — always via PR from `dev`, per
+    `.github/BRANCH_STRATEGY.md`.
 
 ## How the QR tool works (important — it is client-side)
 
@@ -125,5 +134,6 @@ git push origin dev
 - DNS changes for zipply.tools
 - Pushing to `preprod` or `main` branches
 - Any production deployment
-- Registering the `services/qr-service` Docker image fix is code-only and does _not_ need operator
-  action — don't defer that one unnecessarily.
+- Adding a `services/qr-service/Dockerfile` (it was removed from the CI build matrix on 2026-08-08
+  instead, see `DECISIONS.md` ADR-007) is code-only and does _not_ need operator action — don't
+  defer that one unnecessarily.
