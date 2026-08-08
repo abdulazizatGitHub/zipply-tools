@@ -100,7 +100,7 @@ export default function HomePage(): ReactElement {
                 <span className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-400" />
               </span>
-              2 tools live · 3 more shipping soon
+              3 tools live
             </div>
 
             {/* Headline */}

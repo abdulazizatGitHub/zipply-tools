@@ -32,7 +32,7 @@ const DEF = {
   bgColor: '#ffffff',
   ecl: 'H' as const,
   frameTemplate: 'none' as FrameTemplate,
-  frameColor: '#2f5fe6',
+  frameColor: '#141E5A',
   frameText: 'SCAN ME',
 };
 
