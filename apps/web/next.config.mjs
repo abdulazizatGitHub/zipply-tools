@@ -8,6 +8,10 @@
  *   - `experimental.instrumentationHook` — enables OTel preload via instrumentation.ts
  *   - poweredByHeader off        — leaks nothing
  *   - `images.remotePatterns`    — explicit allowlist; never `domains: ['*']`
+ *   - `webpack` extensionAlias   — transpiled packages (e.g. @toolforge/ui) use NodeNext-style
+ *     `.js`-suffixed relative imports that point at `.ts`/`.tsx` files (works under tsc/Vitest,
+ *     which do this remapping natively). Webpack doesn't do it by default, so an unbuilt package
+ *     consumed directly from src/ fails to resolve without this alias.
  */
 
 /** @type {import('next').NextConfig} */
@@ -37,6 +41,14 @@ const nextConfig = {
     remotePatterns: [
       // Add the platform's CDN host(s) here once provisioned.
     ],
+  },
+
+  webpack(config) {
+    config.resolve.extensionAlias = {
+      ...config.resolve.extensionAlias,
+      '.js': ['.js', '.ts', '.tsx'],
+    };
+    return config;
   },
 
   async headers() {
