@@ -31,7 +31,7 @@ export { Badge } from './components/badge/index.js';
 export type { BadgeProps, BadgeVariant } from './components/badge/index.js';
 
 export { StepIndicator } from './components/step-indicator/index.js';
-export type { StepIndicatorProps } from './components/step-indicator/index.js';
+export type { StepIndicatorProps, StepStatus } from './components/step-indicator/index.js';
 
 export { Modal } from './components/modal/index.js';
 export type { ModalProps } from './components/modal/index.js';
