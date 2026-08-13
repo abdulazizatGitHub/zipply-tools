@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { colors } from './index.js';
 import { tailwindTokens } from './tailwind.js';
 

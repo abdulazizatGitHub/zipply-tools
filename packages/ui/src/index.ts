@@ -17,3 +17,21 @@
 
 export { cn } from './lib/cn.js';
 export type { ComponentVariants } from './lib/variants.js';
+
+export { Button } from './components/button/index.js';
+export type { ButtonProps, ButtonSize, ButtonVariant } from './components/button/index.js';
+
+export { Card } from './components/card/index.js';
+export type { CardProps } from './components/card/index.js';
+
+export { DropZone } from './components/drop-zone/index.js';
+export type { DropZoneProps } from './components/drop-zone/index.js';
+
+export { Badge } from './components/badge/index.js';
+export type { BadgeProps, BadgeVariant } from './components/badge/index.js';
+
+export { StepIndicator } from './components/step-indicator/index.js';
+export type { StepIndicatorProps } from './components/step-indicator/index.js';
+
+export { Modal } from './components/modal/index.js';
+export type { ModalProps } from './components/modal/index.js';
