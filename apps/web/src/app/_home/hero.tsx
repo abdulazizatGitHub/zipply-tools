@@ -12,7 +12,7 @@ export function Hero(): ReactElement {
   return (
     <section className="bg-base px-6 pb-16 pt-20 sm:pb-20 sm:pt-28">
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-neutral-950 sm:text-5xl">
+        <h1 className="text-4xl font-extrabold tracking-tight text-brand sm:text-5xl">
           Free file tools that don&apos;t get in your way.
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-lg text-neutral-600">

@@ -1,5 +1,3 @@
-import { StepIndicator } from '@toolforge/ui';
-
 import { IconDownload, IconUpload, IconZap } from '../../components/icons';
 
 import type { ReactElement } from 'react';
@@ -26,15 +24,11 @@ export function HowItWorks(): ReactElement {
   return (
     <section className="border-y border-neutral-200 bg-neutral-0 px-6 py-16">
       <div className="mx-auto max-w-4xl">
-        <h2 className="text-center text-2xl font-bold text-neutral-950 sm:text-3xl">
+        <h2 className="text-center text-2xl font-bold text-brand sm:text-3xl">
           Three steps, every time.
         </h2>
 
-        <div className="mx-auto mt-10 max-w-lg">
-          <StepIndicator steps={STEPS.map((step) => step.label)} currentStep={0} />
-        </div>
-
-        <div className="mt-12 grid gap-8 sm:grid-cols-3">
+        <div className="mt-10 grid gap-8 sm:grid-cols-3">
           {STEPS.map(({ label, Icon, desc }) => (
             <div key={label} className="text-center sm:text-left">
               <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand sm:mx-0">

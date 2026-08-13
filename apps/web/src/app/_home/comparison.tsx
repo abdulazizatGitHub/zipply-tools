@@ -40,10 +40,7 @@ export function Comparison(): ReactElement {
     <section className="bg-base px-6 py-16">
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-neutral-950 sm:text-3xl">Where Zipply stands.</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-neutral-500">
-            No brand named — just an honest comparison against how free PDF tools usually work.
-          </p>
+          <h2 className="text-2xl font-bold text-brand sm:text-3xl">Where Zipply stands.</h2>
         </div>
 
         <div className="mt-10 overflow-x-auto rounded-2xl border border-neutral-200 bg-neutral-0">

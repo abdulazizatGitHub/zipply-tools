@@ -17,7 +17,7 @@ export function ToolCards(): ReactElement {
               href={href}
               className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
             >
-              <Card className="h-full transition-shadow group-hover:shadow-md">
+              <Card className="h-full shadow-md transition-shadow group-hover:shadow-lg">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
                   <Icon className="h-5 w-5" />
                 </span>
