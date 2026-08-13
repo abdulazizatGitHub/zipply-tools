@@ -14,7 +14,15 @@
 
 export const colors = {
   // Brand
+  //
+  // `DEFAULT` is the frozen Penn Blue primary (see DECISIONS.md ADR-004) — the single navy accent
+  // used across the whole product going forward, with no per-tool variants. It is additive only:
+  // the 50-900 scale below is still the pre-ADR-004 emerald palette, actively rendered by every
+  // live page today via shaded classes (`bg-brand-600`, etc). Migrating the scale itself to Penn
+  // Blue is tracked as remaining P1 scope in NEXT_STEPS.md — do not do it inside this token change
+  // without also updating every page that consumes a shaded `brand-*` class in the same pass.
   brand: {
+    DEFAULT: '#141E5A',
     50: '#ecfdf5',
     100: '#d1fae5',
     200: '#a7f3d0',
@@ -60,7 +68,11 @@ export const colors = {
     700: '#92400e',
     800: '#78350f',
   },
+  // `DEFAULT` is the frozen destructive/error accent (see DECISIONS.md ADR-004) — use it ONLY for
+  // destructive and error UI, never as a brand accent. Additive only; the 50-800 scale below is
+  // pre-existing and unrelated to this decision.
   danger: {
+    DEFAULT: '#fa2d14',
     50: '#fef2f2',
     100: '#fee2e2',
     200: '#fecaca',
@@ -77,6 +89,13 @@ export const colors = {
     600: '#0369a1',
     700: '#1d4ed8',
     800: '#1e40af',
+  },
+  // Base / page background (see DECISIONS.md ADR-004) — warm off-white, exposed to Tailwind as
+  // `bg-base` only (see tailwind.ts): it's intentionally NOT part of the shared `colors` scale
+  // consumed by `text-*`/`border-*` utilities, because a `base` key there would collide with
+  // Tailwind's built-in `text-base` font-size utility, which live pages already use.
+  base: {
+    DEFAULT: '#F8F5F1',
   },
 } as const;
 

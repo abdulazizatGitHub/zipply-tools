@@ -19,6 +19,12 @@ export const tailwindTokens = {
     danger: { ...colors.danger },
     info: { ...colors.info },
   },
+  // `base` (page background, ADR-004) is deliberately scoped to backgroundColor only, not the
+  // shared `colors` map above — putting it there would also generate a `text-base` color utility
+  // that collides with Tailwind's built-in `text-base` font-size utility.
+  backgroundColor: {
+    base: colors.base.DEFAULT,
+  },
   fontFamily: typography.fontFamily,
   fontSize: typography.fontSize,
   fontWeight: typography.fontWeight,
