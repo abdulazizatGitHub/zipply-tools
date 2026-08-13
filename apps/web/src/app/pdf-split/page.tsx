@@ -75,7 +75,7 @@ export default function PdfSplitPage(): ReactElement {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }}
       />
 
-      <SiteNav breadcrumbs={[{ label: 'PDF Split' }]} alwaysGlass />
+      <SiteNav />
 
       {/* ── Tool hero strip ── */}
       <div className="border-b border-neutral-200 bg-white">

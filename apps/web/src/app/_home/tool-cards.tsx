@@ -1,8 +1,8 @@
 import { Card } from '@toolforge/ui';
 import Link from 'next/link';
 
-import { HOME_TOOLS } from './tools-data';
 import { IconArrowRight } from '../../components/icons';
+import { HOME_TOOLS } from '../../components/tools-data';
 
 import type { ReactElement } from 'react';
 

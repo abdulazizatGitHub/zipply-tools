@@ -70,7 +70,7 @@ export default function PdfMergePage(): ReactElement {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }}
       />
 
-      <SiteNav breadcrumbs={[{ label: 'PDF Merge' }]} alwaysGlass />
+      <SiteNav />
 
       {/* ── Tool hero strip ── */}
       <div className="border-b border-neutral-200 bg-white">

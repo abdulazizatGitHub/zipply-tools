@@ -89,7 +89,7 @@ export default function QrGeneratorPage(): ReactElement {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }}
       />
 
-      <SiteNav breadcrumbs={[{ label: 'QR Generator' }]} alwaysGlass />
+      <SiteNav />
 
       {/* Tool hero */}
       <div className="border-b border-neutral-200 bg-white">

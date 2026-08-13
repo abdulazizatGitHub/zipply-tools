@@ -1,4 +1,4 @@
-import { IconMerge, IconQr, IconSplit } from '../../components/icons';
+import { IconMerge, IconQr, IconSplit } from './icons';
 
 import type { ComponentType } from 'react';
 

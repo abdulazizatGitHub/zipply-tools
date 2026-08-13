@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { HOME_TOOLS } from './tools-data';
+import { HOME_TOOLS } from '../../components/tools-data';
 
 import type { ReactElement } from 'react';
 

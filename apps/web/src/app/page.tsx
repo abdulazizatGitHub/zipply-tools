@@ -7,16 +7,16 @@
 import { Comparison } from './_home/comparison';
 import { Hero } from './_home/hero';
 import { HomeFooter } from './_home/home-footer';
-import { HomeHeader } from './_home/home-header';
 import { HowItWorks } from './_home/how-it-works';
 import { ToolCards } from './_home/tool-cards';
+import { SiteNav } from '../components/site-nav';
 
 import type { ReactElement } from 'react';
 
 export default function HomePage(): ReactElement {
   return (
     <div className="flex min-h-screen flex-col bg-base">
-      <HomeHeader />
+      <SiteNav />
       <main className="flex-1">
         <Hero />
         <ToolCards />
