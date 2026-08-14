@@ -162,7 +162,7 @@ export function PdfMergeClient({
   const totalSize = files.reduce((s, f) => s + f.file.size, 0);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <StepIndicator steps={STEPS} currentStep={currentStep} />
 
       {/* Hidden file input */}
@@ -219,13 +219,17 @@ export function PdfMergeClient({
         </ResultPanel>
       ) : (
         <>
-          {/* ── Drop zone ── */}
-          <DropZone onClick={() => inputRef.current?.click()} onDrop={onDrop}>
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
+          {/* ── Drop zone — the focal point, generous and centered ── */}
+          <DropZone
+            onClick={() => inputRef.current?.click()}
+            onDrop={onDrop}
+            className="p-14 sm:p-20"
+          >
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
               {files.length ? (
-                <IconPlus className="h-6 w-6 text-brand" />
+                <IconPlus className="h-7 w-7 text-brand" />
               ) : (
-                <IconFilePdf className="h-6 w-6 text-brand" />
+                <IconFilePdf className="h-7 w-7 text-brand" />
               )}
             </div>
             <div>
@@ -240,8 +244,8 @@ export function PdfMergeClient({
                   </>
                 )}
               </p>
-              <p className="mt-1 text-xs text-neutral-400">
-                Up to 20 files · 50 MB total · PDF only
+              <p className="mt-1.5 text-xs text-neutral-400">
+                Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour
               </p>
             </div>
           </DropZone>

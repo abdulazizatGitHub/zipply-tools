@@ -1,12 +1,9 @@
 import { breadcrumbLd, faqLd, hreflangs, softwareApplicationLd } from '@toolforge/seo-kit';
 
 import { PdfMergeClient } from './pdf-merge-client';
-import { IconMerge, IconSplit } from '../../components/icons';
 import { SiteNav } from '../../components/site-nav';
 import { ToolFaqSection } from '../../components/tool-faq-section';
-import { ToolHeroStrip } from '../../components/tool-hero-strip';
 import { ToolPageFooter } from '../../components/tool-page-footer';
-import { KeyValueCard, NumberedStepsCard, RelatedToolCard } from '../../components/tool-sidebar';
 
 import type { Metadata } from 'next';
 import type { ReactElement } from 'react';
@@ -77,49 +74,21 @@ export default function PdfMergePage(): ReactElement {
 
       <SiteNav />
 
-      <ToolHeroStrip
-        icon={IconMerge}
-        title="PDF Merge"
-        description="Combine multiple PDFs into one file. Upload in order, reorder by dragging, then download."
-      />
+      {/* ── Main layout — single column, one continuous base surface, no boxed hero band ── */}
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <h1 className="text-2xl font-bold text-neutral-950 sm:text-3xl">PDF Merge</h1>
+          <p className="mt-2 text-sm text-neutral-500">
+            Combine multiple PDFs into one file. Upload in order, reorder by dragging, then
+            download.
+          </p>
+        </div>
 
-      {/* ── Main layout ── */}
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
-          {/* Tool widget */}
-          <div className="min-w-0">
-            <PdfMergeClient
-              apiBase={process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080'}
-              pdfServiceBase={
-                process.env.NEXT_PUBLIC_PDF_SERVICE_BASE_URL ?? 'http://localhost:8081'
-              }
-            />
-          </div>
-
-          {/* Sidebar */}
-          <aside className="hidden space-y-6 lg:block">
-            <NumberedStepsCard
-              steps={[
-                'Drop or browse your PDF files',
-                'Drag to set merge order',
-                'Click Merge and download',
-              ]}
-            />
-            <KeyValueCard
-              items={[
-                ['Max files', '20 PDFs'],
-                ['Max total size', '50 MB'],
-                ['Retention', '1 hour'],
-                ['Cost', 'Free'],
-              ]}
-            />
-            <RelatedToolCard
-              href="/pdf-split"
-              icon={IconSplit}
-              name="PDF Split"
-              tagline="Extract or separate pages"
-            />
-          </aside>
+        <div className="mx-auto mt-10 max-w-2xl">
+          <PdfMergeClient
+            apiBase={process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080'}
+            pdfServiceBase={process.env.NEXT_PUBLIC_PDF_SERVICE_BASE_URL ?? 'http://localhost:8081'}
+          />
         </div>
 
         <ToolFaqSection items={FAQ_ITEMS} />

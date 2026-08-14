@@ -3,28 +3,29 @@ import { describe, expect, it } from 'vitest';
 
 import PdfMergePage from './page.js';
 
-describe('PdfMergePage (navy flow redesign)', () => {
+describe('PdfMergePage (simplified single-column redesign)', () => {
   it('renders without throwing', () => {
     expect(() => renderToStaticMarkup(<PdfMergePage />)).not.toThrow();
   });
 
-  it('renders the tool heading and Free tag', () => {
+  it('renders the tool heading', () => {
     const html = renderToStaticMarkup(<PdfMergePage />);
     expect(html).toContain('PDF Merge');
-    expect(html).toContain('Free');
   });
 
-  it('renders the shared sidebar cards', () => {
+  it('does not render the sidebar cards — single-column, no distraction', () => {
     const html = renderToStaticMarkup(<PdfMergePage />);
-    expect(html).toContain('How to use');
-    expect(html).toContain('Limits');
-    expect(html).toContain('PDF Split');
+    expect(html).not.toContain('How to use');
+    expect(html).not.toContain('Limits');
   });
 
-  it('renders the drop zone and step indicator', () => {
+  it('renders the drop zone, step indicator, and the essential-info line', () => {
     const html = renderToStaticMarkup(<PdfMergePage />);
     expect(html).toContain('Drop PDF files here');
     expect(html).toContain('Merge');
+    expect(html).toContain(
+      'Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour',
+    );
   });
 
   it('renders the FAQ section', () => {
