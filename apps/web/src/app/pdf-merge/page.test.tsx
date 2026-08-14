@@ -23,9 +23,7 @@ describe('PdfMergePage (simplified single-column redesign)', () => {
     const html = renderToStaticMarkup(<PdfMergePage />);
     expect(html).toContain('Drop PDF files here');
     expect(html).toContain('Merge');
-    expect(html).toContain(
-      'Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour',
-    );
+    expect(html).toContain('Up to 20 files · 50 MB · PDF only · Free · deleted in 1 hour');
   });
 
   it('renders the FAQ section', () => {

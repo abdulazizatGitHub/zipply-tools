@@ -81,10 +81,11 @@ function IconCloud({ className = 'h-4 w-4' }: { className?: string }): ReactElem
   );
 }
 
-/* A future cloud-import source — visibly pending, not a live control. Navy-TINTED (bg-brand/15,
- * muted icon), never full bg-brand, so it can't be mistaken for a working navy CTA like the Merge
- * or Download buttons. The "Soon" badge is the primary honesty signal, on top of native disabled +
- * aria-disabled + a tooltip. No onClick — there is nothing for it to do yet. */
+/* A future cloud-import source — reads as a live navy control turned down, not a dead/broken grey
+ * one. The circle fill is a navy tint (bg-brand/20), but the icon and label stay full-strength
+ * text-brand — a "dimmed navy" button, not a desaturated one — so it's unmistakably a Zipply
+ * feature, just not built yet. The "Soon" badge (kept neutral, off the navy family) is the honesty
+ * signal on top of native disabled + aria-disabled + a tooltip. No onClick — nothing to do yet. */
 function CloudImportButton({ label, tooltip }: { label: string; tooltip: string }): ReactElement {
   return (
     <div className="flex flex-col items-center gap-1.5">
@@ -94,14 +95,14 @@ function CloudImportButton({ label, tooltip }: { label: string; tooltip: string 
         aria-disabled="true"
         title={tooltip}
         aria-label={tooltip}
-        className="relative flex h-14 w-14 cursor-not-allowed items-center justify-center rounded-full bg-brand/15 text-brand/70"
+        className="relative flex h-14 w-14 cursor-not-allowed items-center justify-center rounded-full bg-brand/20 text-brand"
       >
         <IconCloud className="h-6 w-6" />
         <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide text-neutral-500">
           Soon
         </span>
       </button>
-      <span className="text-xs text-neutral-400">{label}</span>
+      <span className="text-xs font-medium text-brand">{label}</span>
     </div>
   );
 }
@@ -318,7 +319,7 @@ export function PdfMergeClient({
                   )}
                 </p>
                 <p className="mt-1.5 text-xs text-neutral-400">
-                  Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour
+                  Up to 20 files · 50 MB · PDF only · Free · deleted in 1 hour
                 </p>
               </div>
             </DropZone>
@@ -326,7 +327,7 @@ export function PdfMergeClient({
             {/* Secondary — future cloud-import sources, honestly pending, never competing with
                 device upload for attention. Row of two on narrow screens (below the dropzone),
                 a slim stacked column beside it on larger ones. */}
-            <div className="flex flex-col items-center gap-4 sm:w-32 sm:flex-shrink-0 sm:items-start sm:justify-center">
+            <div className="flex flex-col items-center gap-4 sm:w-28 sm:flex-shrink-0 sm:items-start sm:justify-center">
               <p className="text-center text-xs text-neutral-400 sm:text-left">Or import from</p>
               <div className="flex flex-row gap-6 sm:flex-col sm:gap-5">
                 <CloudImportButton label="Drive" tooltip="Google Drive — coming soon" />
