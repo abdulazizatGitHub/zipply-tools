@@ -35,3 +35,9 @@ export type { StepIndicatorProps, StepStatus } from './components/step-indicator
 
 export { Modal } from './components/modal/index.js';
 export type { ModalProps } from './components/modal/index.js';
+
+export { ProcessingPanel } from './components/processing-panel/index.js';
+export type { ProcessingPanelProps } from './components/processing-panel/index.js';
+
+export { ResultPanel } from './components/result-panel/index.js';
+export type { ResultPanelProps } from './components/result-panel/index.js';

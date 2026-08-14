@@ -9,6 +9,50 @@ of decisions made in this repository so far. If `docs/adr/` gets created later, 
 
 ---
 
+## ADR-008: Success/positive states are navy, not green; tool-page footer stays distinct from home's
+
+Date: 2026-08-14 Status: Decided
+
+**Question (part 1):** What color should "success"/"ready"/"complete" states use — the dormant
+`success` token scale (green), a `emerald-*` shade, or the brand navy?
+
+**Decision:** Navy (`text-brand`/`bg-brand/10`), product-wide. The `success` token family in
+`@toolforge/design-tokens` stays defined but unused for this purpose. The checkmark icon itself
+carries the "this succeeded" meaning — success states must never depend on color alone.
+
+**Why:** The frozen palette (ADR-004) is single-accent navy plus danger-red, with no per-tool or
+per-state color proliferation. Introducing green for "success" would reintroduce a second accent
+color the platform deliberately avoided, and would sit oddly next to `#fa2d14` being reserved
+strictly for danger. Surfaced while extracting the shared tool-page identity in P1 Phase C
+(`ResultPanel` in `@toolforge/ui`) — the PDF Merge page's pre-redesign "Ready" badges and success
+checkmark used raw Tailwind `emerald-*` classes (not even token-routed), which was both an
+accidental holdover from the pre-navy palette and a hard-rule-9 violation independent of it.
+
+**What was rejected:** Using the `success` scale (`colors.success` in design-tokens, still `#16a34a`
+green) for these states — rejected for the same single-accent reasoning above, not because the token
+itself is wrong to keep around for some future need.
+
+---
+
+**Question (part 2):** Should the minimal one-line tool-page footer be unified with home's full
+`HomeFooter` (tool links, proprietary notice, contact email) now that tool pages are being
+redesigned to match home's navy identity?
+
+**Decision:** No — keep them distinct. `apps/web/src/components/tool-page-footer.tsx` (shared across
+the three tool pages, exact minimal one-line text, navy-token-ized) is intentionally separate from
+`apps/web/src/app/_home/home-footer.tsx` (home-only, fuller content).
+
+**Why:** Unifying would be a content decision (adding tool links, legal text, and a contact email to
+every tool page), not a visual re-skin — out of scope for a visual/layout redesign checkpoint, and
+not something one tool's redesign should decide unilaterally for the other two. This is recorded
+explicitly so a later phase doesn't "clean up" the apparent duplication and silently merge them —
+it's an intentional distinction, not an unresolved duplicate.
+
+**What was rejected:** Promoting `HomeFooter` to `apps/web/src/components/` and using it everywhere
+— rejected for now per the reasoning above; may be revisited as its own deliberate decision later.
+
+---
+
 ## ADR-007: QR generation is client-side
 
 Date: 2026-08-06 Status: Decided

@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { DropZone } from './drop-zone.js';
 
@@ -30,5 +30,29 @@ describe('DropZone', () => {
   it('defaults to the idle state', () => {
     const html = renderToStaticMarkup(<DropZone />);
     expect(html).toContain('data-state="idle"');
+  });
+
+  it('gains button semantics only when onClick is provided', () => {
+    const withoutClick = renderToStaticMarkup(<DropZone />);
+    expect(withoutClick).not.toContain('role="button"');
+
+    const withClick = renderToStaticMarkup(<DropZone onClick={vi.fn()} />);
+    expect(withClick).toContain('role="button"');
+    expect(withClick).toContain('tabindex="0"');
+  });
+
+  it('does not expose button semantics when disabled, even with onClick', () => {
+    const html = renderToStaticMarkup(<DropZone onClick={vi.fn()} disabled />);
+    expect(html).not.toContain('tabindex="0"');
+  });
+
+  it('renders custom children instead of the default label/hint', () => {
+    const html = renderToStaticMarkup(
+      <DropZone label="Should not appear">
+        <span>Custom content</span>
+      </DropZone>,
+    );
+    expect(html).toContain('Custom content');
+    expect(html).not.toContain('Should not appear');
   });
 });

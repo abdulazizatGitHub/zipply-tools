@@ -14,6 +14,10 @@ export interface DropZoneProps {
   active?: boolean;
   className?: string;
   onDrop?: (event: DragEvent<HTMLDivElement>) => void;
+  /** Makes the zone clickable (e.g. to open a file picker), adding button semantics and keyboard support. */
+  onClick?: () => void;
+  /** Custom content (e.g. an icon plus rich copy) instead of the default label/hint text. */
+  children?: ReactNode;
 }
 
 export function DropZone({
@@ -23,14 +27,30 @@ export function DropZone({
   active,
   className,
   onDrop,
+  onClick,
+  children,
 }: DropZoneProps): ReactElement {
   const [internalActive, setInternalActive] = useState(false);
   const isActive = active ?? internalActive;
+  const clickable = Boolean(onClick) && !disabled;
 
   return (
     <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
       aria-disabled={disabled}
       data-state={isActive ? 'active' : 'idle'}
+      onClick={clickable ? onClick : undefined}
+      onKeyDown={
+        clickable
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
       onDragEnter={(event) => {
         event.preventDefault();
         if (!disabled) setInternalActive(true);
@@ -50,6 +70,7 @@ export function DropZone({
       }}
       className={cn(
         'flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed p-8 text-center transition-colors',
+        clickable && 'cursor-pointer',
         disabled
           ? 'border-neutral-200 bg-neutral-50 text-neutral-400'
           : 'border-neutral-300 text-neutral-600',
@@ -57,8 +78,12 @@ export function DropZone({
         className,
       )}
     >
-      <span className="text-sm font-semibold">{label}</span>
-      {hint ? <span className="text-xs text-neutral-400">{hint}</span> : null}
+      {children ?? (
+        <>
+          <span className="text-sm font-semibold">{label}</span>
+          {hint ? <span className="text-xs text-neutral-400">{hint}</span> : null}
+        </>
+      )}
     </div>
   );
 }
