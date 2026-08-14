@@ -42,7 +42,7 @@ export function SiteNav(): ReactElement {
                 aria-current={isActive ? 'page' : undefined}
                 className={`rounded-lg px-2 py-2 text-xs font-medium transition-colors sm:px-3 sm:text-sm ${
                   isActive
-                    ? 'bg-brand/10 text-brand'
+                    ? 'text-brand'
                     : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-950'
                 }`}
               >

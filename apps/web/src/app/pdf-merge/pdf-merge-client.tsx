@@ -16,11 +16,10 @@ import {
   IconFilePdf,
   IconGripVertical,
   IconPlus,
-  IconSplit,
   IconX,
 } from '../../components/icons';
 
-import type { DragEvent } from 'react';
+import type { DragEvent, ReactElement } from 'react';
 
 interface FileItem {
   id: string;
@@ -36,7 +35,51 @@ type MergeState =
   | { status: 'done'; downloadUrl: string; pageCount: number; sizeBytes: number }
   | { status: 'error'; message: string };
 
+/** Which screen is showing — independent of merge.status so "back" can set the result aside
+ *  without discarding it, and can step to a blank upload view without discarding the file list. */
+type ViewStep = 'upload' | 'merge' | 'done';
+
 const STEPS = ['Upload files', 'Merge', 'Download'];
+
+/* Local, unexported icons — kept out of the shared components/icons.tsx for this checkpoint so the
+ * diff stays confined to this file (see the P1 Phase C4 task scope). */
+function IconArrowLeft({ className = 'h-4 w-4' }: { className?: string }): ReactElement {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+
+/* Generic cloud glyph — no Google Drive/Dropbox brand mark is available in this project and adding
+ * one means either a new icon-library dependency or vendoring brand assets, neither in scope here.
+ * The button's label/tooltip carries the "which service" meaning, not the icon. */
+function IconCloud({ className = 'h-4 w-4' }: { className?: string }): ReactElement {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M17.5 19H9a5 5 0 1 1 .29-9.99A7 7 0 0 1 21 12.5a4.5 4.5 0 0 1-3.5 6.5z" />
+    </svg>
+  );
+}
 
 export function PdfMergeClient({
   apiBase,
@@ -47,12 +90,11 @@ export function PdfMergeClient({
 }) {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [merge, setMerge] = useState<MergeState>({ status: 'idle' });
+  const [viewStep, setViewStep] = useState<ViewStep>('upload');
   const inputRef = useRef<HTMLInputElement>(null);
   const dragItem = useRef<number | null>(null);
 
-  /* Derived step for the indicator */
-  const currentStep =
-    merge.status === 'done' ? 2 : merge.status === 'merging' ? 1 : files.length >= 2 ? 1 : 0;
+  const currentStep = viewStep === 'upload' ? 0 : viewStep === 'merge' ? 1 : 2;
 
   const addFiles = (incoming: File[]) => {
     const pdfs = incoming.filter((f) => f.type === 'application/pdf' || f.name.endsWith('.pdf'));
@@ -62,6 +104,7 @@ export function PdfMergeClient({
       ...pdfs.map((f) => ({ id: crypto.randomUUID(), file: f, uploadState: 'pending' as const })),
     ]);
     if (merge.status !== 'idle') setMerge({ status: 'idle' });
+    setViewStep('merge');
   };
 
   const removeFile = (id: string) => {
@@ -144,6 +187,7 @@ export function PdfMergeClient({
         pageCount: data.output.pageCount,
         sizeBytes: data.output.sizeBytes,
       });
+      setViewStep('done');
     } catch (err) {
       setMerge({
         status: 'error',
@@ -152,9 +196,15 @@ export function PdfMergeClient({
     }
   };
 
-  const reset = () => {
-    setFiles([]);
-    setMerge({ status: 'idle' });
+  /* Pure client-state navigation — no fetch, no re-upload, no re-merge. Just changes which step
+   * renders from state already held in this component. */
+  const goBack = () => {
+    if (viewStep === 'done') {
+      setMerge({ status: 'idle' }); // set the result aside; files are untouched
+      setViewStep('merge');
+    } else if (viewStep === 'merge') {
+      setViewStep('upload');
+    }
   };
 
   const fmt = (n: number) =>
@@ -163,7 +213,19 @@ export function PdfMergeClient({
 
   return (
     <div className="space-y-6">
-      <StepIndicator steps={STEPS} currentStep={currentStep} />
+      <div className="flex items-center gap-4">
+        {viewStep !== 'upload' && merge.status !== 'merging' && (
+          <button
+            type="button"
+            onClick={goBack}
+            className="flex flex-shrink-0 items-center gap-1 text-sm font-medium text-neutral-500 transition-colors hover:text-brand"
+          >
+            <IconArrowLeft className="h-3.5 w-3.5" />
+            Back
+          </button>
+        )}
+        <StepIndicator steps={STEPS} currentStep={currentStep} className="flex-1" />
+      </div>
 
       {/* Hidden file input */}
       <input
@@ -181,7 +243,7 @@ export function PdfMergeClient({
         <ProcessingPanel
           label={`Merging ${String(files.length)} PDF${files.length !== 1 ? 's' : ''}…`}
         />
-      ) : merge.status === 'done' ? (
+      ) : viewStep === 'done' && merge.status === 'done' ? (
         <ResultPanel
           heading="Merge complete!"
           subtext={`${String(merge.pageCount)} pages · ${fmt(merge.sizeBytes)} · ready to download`}
@@ -196,22 +258,6 @@ export function PdfMergeClient({
             <IconDownload className="h-4 w-4" />
             Download merged.pdf
           </a>
-
-          <div className="mt-4 flex items-center justify-center gap-4">
-            <button
-              onClick={reset}
-              className="text-sm text-neutral-400 transition-colors hover:text-neutral-700 hover:underline"
-            >
-              Merge more files
-            </button>
-            <span className="text-neutral-200">·</span>
-            <a
-              href="/pdf-split"
-              className="flex items-center gap-1 text-sm text-neutral-400 transition-colors hover:text-brand"
-            >
-              <IconSplit className="h-3.5 w-3.5" /> Try PDF Split
-            </a>
-          </div>
 
           <p className="mt-6 text-xs text-neutral-400">
             File will be automatically deleted within 1 hour
@@ -248,10 +294,35 @@ export function PdfMergeClient({
                 Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour
               </p>
             </div>
+
+            {/* Cloud import — future feature, honestly disabled, secondary to device upload */}
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-xs text-neutral-300">Or import from</span>
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="Google Drive — coming soon"
+                aria-label="Google Drive — coming soon"
+                className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-lg text-neutral-300 opacity-60"
+              >
+                <IconCloud className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="Dropbox — coming soon"
+                aria-label="Dropbox — coming soon"
+                className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-lg text-neutral-300 opacity-60"
+              >
+                <IconCloud className="h-4 w-4" />
+              </button>
+            </div>
           </DropZone>
 
-          {/* ── File list ── */}
-          {files.length > 0 && (
+          {/* ── File list — only in the merge (populated) view ── */}
+          {viewStep === 'merge' && files.length > 0 && (
             <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-0 shadow-sm">
               <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50/80 px-4 py-2.5">
                 <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
@@ -325,14 +396,14 @@ export function PdfMergeClient({
           )}
 
           {/* One-file hint */}
-          {files.length === 1 && merge.status === 'idle' && (
+          {viewStep === 'merge' && files.length === 1 && merge.status === 'idle' && (
             <p className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
               Add at least one more PDF to enable merging.
             </p>
           )}
 
           {/* Error */}
-          {merge.status === 'error' && (
+          {viewStep === 'merge' && merge.status === 'error' && (
             <div className="flex items-start gap-3 rounded-xl border border-danger-200 bg-danger-50 p-4">
               <IconAlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-danger-500" />
               <div className="flex-1">
@@ -351,7 +422,7 @@ export function PdfMergeClient({
           )}
 
           {/* ── Merge button ── */}
-          {files.length >= 2 && (
+          {viewStep === 'merge' && files.length >= 2 && (
             <Button
               type="button"
               variant="primary"
