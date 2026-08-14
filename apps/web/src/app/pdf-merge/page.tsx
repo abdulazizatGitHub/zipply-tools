@@ -1,10 +1,15 @@
 import { breadcrumbLd, faqLd, hreflangs, softwareApplicationLd } from '@toolforge/seo-kit';
+
+import { PdfMergeClient } from './pdf-merge-client';
+import { IconMerge, IconSplit } from '../../components/icons';
+import { SiteNav } from '../../components/site-nav';
+import { ToolFaqSection } from '../../components/tool-faq-section';
+import { ToolHeroStrip } from '../../components/tool-hero-strip';
+import { ToolPageFooter } from '../../components/tool-page-footer';
+import { KeyValueCard, NumberedStepsCard, RelatedToolCard } from '../../components/tool-sidebar';
+
 import type { Metadata } from 'next';
 import type { ReactElement } from 'react';
-
-import { SiteNav } from '../../components/site-nav';
-import { IconMerge, IconSplit } from '../../components/icons';
-import { PdfMergeClient } from './pdf-merge-client';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
 const TOOL_PATH = '/pdf-merge';
@@ -56,7 +61,7 @@ const crumbs = breadcrumbLd({
 
 export default function PdfMergePage(): ReactElement {
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50">
+    <div className="flex min-h-screen flex-col bg-base">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(appLd) }}
@@ -72,34 +77,11 @@ export default function PdfMergePage(): ReactElement {
 
       <SiteNav />
 
-      {/* ── Tool hero strip ── */}
-      <div className="border-b border-neutral-200 bg-white">
-        <div className="h-1 w-full bg-gradient-to-r from-brand-500 to-brand-400" />
-        <div className="mx-auto max-w-5xl px-6 py-8">
-          <div className="flex items-center gap-4">
-            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-brand-500 text-white shadow-[0_4px_14px_rgba(5,150,105,0.35)]">
-              <IconMerge className="h-5 w-5" />
-            </span>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1
-                  className="text-xl font-bold text-neutral-950"
-                  style={{ fontFamily: 'var(--font-display)' }}
-                >
-                  PDF Merge
-                </h1>
-                <span className="rounded-md border border-neutral-100 bg-neutral-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                  Free
-                </span>
-              </div>
-              <p className="mt-0.5 text-sm text-neutral-500">
-                Combine multiple PDFs into one file. Upload in order, reorder by dragging, then
-                download.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ToolHeroStrip
+        icon={IconMerge}
+        title="PDF Merge"
+        description="Combine multiple PDFs into one file. Upload in order, reorder by dragging, then download."
+      />
 
       {/* ── Main layout ── */}
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6">
@@ -116,81 +98,34 @@ export default function PdfMergePage(): ReactElement {
 
           {/* Sidebar */}
           <aside className="hidden space-y-6 lg:block">
-            {/* How to use */}
-            <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-4 text-xs font-bold uppercase tracking-widest text-neutral-400">
-                How to use
-              </h2>
-              <ol className="space-y-3">
-                {[
-                  'Drop or browse your PDF files',
-                  'Drag to set merge order',
-                  'Click Merge and download',
-                ].map((step, i) => (
-                  <li key={step} className="flex items-start gap-3">
-                    <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-[10px] font-bold text-brand-600">
-                      {i + 1}
-                    </span>
-                    <span className="text-sm text-neutral-600">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Limits */}
-            <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400">
-                Limits
-              </h2>
-              <dl className="space-y-2 text-sm">
-                {[
-                  ['Max files', '20 PDFs'],
-                  ['Max total size', '50 MB'],
-                  ['Retention', '1 hour'],
-                  ['Cost', 'Free'],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between">
-                    <dt className="text-neutral-500">{label}</dt>
-                    <dd className="font-semibold text-neutral-800">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-
-            {/* Related tool */}
-            <a
+            <NumberedStepsCard
+              steps={[
+                'Drop or browse your PDF files',
+                'Drag to set merge order',
+                'Click Merge and download',
+              ]}
+            />
+            <KeyValueCard
+              items={[
+                ['Max files', '20 PDFs'],
+                ['Max total size', '50 MB'],
+                ['Retention', '1 hour'],
+                ['Cost', 'Free'],
+              ]}
+            />
+            <RelatedToolCard
               href="/pdf-split"
-              className="glow-hover flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
-            >
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
-                <IconSplit className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-neutral-800">PDF Split</p>
-                <p className="text-xs text-neutral-400">Extract or separate pages</p>
-              </div>
-              <IconSplit className="ml-auto h-3.5 w-3.5 text-neutral-300" />
-            </a>
+              icon={IconSplit}
+              name="PDF Split"
+              tagline="Extract or separate pages"
+            />
           </aside>
         </div>
 
-        {/* FAQ */}
-        <section className="mt-14 border-t border-neutral-200 pt-10">
-          <h2 className="mb-6 text-xs font-bold uppercase tracking-widest text-neutral-400">FAQ</h2>
-          <div className="grid gap-5 sm:grid-cols-2">
-            {FAQ_ITEMS.map(({ question, answer }) => (
-              <div key={question} className="rounded-xl border border-neutral-100 bg-white p-5">
-                <dt className="text-sm font-semibold text-neutral-800">{question}</dt>
-                <dd className="mt-1.5 text-sm leading-relaxed text-neutral-500">{answer}</dd>
-              </div>
-            ))}
-          </div>
-        </section>
+        <ToolFaqSection items={FAQ_ITEMS} />
       </main>
 
-      <footer className="border-t border-neutral-200 bg-white py-6 text-center text-xs text-neutral-400">
-        Zipply — free file tools · no account required
-      </footer>
+      <ToolPageFooter />
     </div>
   );
 }
