@@ -63,7 +63,7 @@ function IconArrowLeft({ className = 'h-4 w-4' }: { className?: string }): React
 
 /* Generic cloud glyph — no Google Drive/Dropbox brand mark is available in this project and adding
  * one means either a new icon-library dependency or vendoring brand assets, neither in scope here.
- * The button's label/tooltip carries the "which service" meaning, not the icon. */
+ * The button's label/tooltip/text carry the "which service" meaning, not the icon. */
 function IconCloud({ className = 'h-4 w-4' }: { className?: string }): ReactElement {
   return (
     <svg
@@ -78,6 +78,31 @@ function IconCloud({ className = 'h-4 w-4' }: { className?: string }): ReactElem
     >
       <path d="M17.5 19H9a5 5 0 1 1 .29-9.99A7 7 0 0 1 21 12.5a4.5 4.5 0 0 1-3.5 6.5z" />
     </svg>
+  );
+}
+
+/* A future cloud-import source — visibly pending, not a live control. Navy-TINTED (bg-brand/15,
+ * muted icon), never full bg-brand, so it can't be mistaken for a working navy CTA like the Merge
+ * or Download buttons. The "Soon" badge is the primary honesty signal, on top of native disabled +
+ * aria-disabled + a tooltip. No onClick — there is nothing for it to do yet. */
+function CloudImportButton({ label, tooltip }: { label: string; tooltip: string }): ReactElement {
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <button
+        type="button"
+        disabled
+        aria-disabled="true"
+        title={tooltip}
+        aria-label={tooltip}
+        className="relative flex h-14 w-14 cursor-not-allowed items-center justify-center rounded-full bg-brand/15 text-brand/70"
+      >
+        <IconCloud className="h-6 w-6" />
+        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide text-neutral-500">
+          Soon
+        </span>
+      </button>
+      <span className="text-xs text-neutral-400">{label}</span>
+    </div>
   );
 }
 
@@ -265,61 +290,50 @@ export function PdfMergeClient({
         </ResultPanel>
       ) : (
         <>
-          {/* ── Drop zone — the focal point, generous and centered ── */}
-          <DropZone
-            onClick={() => inputRef.current?.click()}
-            onDrop={onDrop}
-            className="p-14 sm:p-20"
-          >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
-              {files.length ? (
-                <IconPlus className="h-7 w-7 text-brand" />
-              ) : (
-                <IconFilePdf className="h-7 w-7 text-brand" />
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-neutral-700">
+          {/* ── Drop zone (dominant, primary) + a slim secondary "import from" column ──
+              Row on larger screens, stacked (column below) on narrow ones. */}
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch">
+            <DropZone
+              onClick={() => inputRef.current?.click()}
+              onDrop={onDrop}
+              className="flex-1 p-14 sm:p-20"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
                 {files.length ? (
-                  <>
-                    Add more PDFs, or <span className="text-brand">browse</span>
-                  </>
+                  <IconPlus className="h-7 w-7 text-brand" />
                 ) : (
-                  <>
-                    Drop PDF files here, or <span className="text-brand">browse</span>
-                  </>
+                  <IconFilePdf className="h-7 w-7 text-brand" />
                 )}
-              </p>
-              <p className="mt-1.5 text-xs text-neutral-400">
-                Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour
-              </p>
-            </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-neutral-700">
+                  {files.length ? (
+                    <>
+                      Add more PDFs, or <span className="text-brand">browse</span>
+                    </>
+                  ) : (
+                    <>
+                      Drop PDF files here, or <span className="text-brand">browse</span>
+                    </>
+                  )}
+                </p>
+                <p className="mt-1.5 text-xs text-neutral-400">
+                  Up to 20 files · 50 MB total · PDF only · Free · deleted within the hour
+                </p>
+              </div>
+            </DropZone>
 
-            {/* Cloud import — future feature, honestly disabled, secondary to device upload */}
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-xs text-neutral-300">Or import from</span>
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Google Drive — coming soon"
-                aria-label="Google Drive — coming soon"
-                className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-lg text-neutral-300 opacity-60"
-              >
-                <IconCloud className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Dropbox — coming soon"
-                aria-label="Dropbox — coming soon"
-                className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-lg text-neutral-300 opacity-60"
-              >
-                <IconCloud className="h-4 w-4" />
-              </button>
+            {/* Secondary — future cloud-import sources, honestly pending, never competing with
+                device upload for attention. Row of two on narrow screens (below the dropzone),
+                a slim stacked column beside it on larger ones. */}
+            <div className="flex flex-col items-center gap-4 sm:w-32 sm:flex-shrink-0 sm:items-start sm:justify-center">
+              <p className="text-center text-xs text-neutral-400 sm:text-left">Or import from</p>
+              <div className="flex flex-row gap-6 sm:flex-col sm:gap-5">
+                <CloudImportButton label="Drive" tooltip="Google Drive — coming soon" />
+                <CloudImportButton label="Dropbox" tooltip="Dropbox — coming soon" />
+              </div>
             </div>
-          </DropZone>
+          </div>
 
           {/* ── File list — only in the merge (populated) view ── */}
           {viewStep === 'merge' && files.length > 0 && (
