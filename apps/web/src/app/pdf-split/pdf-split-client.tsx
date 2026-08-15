@@ -263,11 +263,15 @@ export function PdfSplitClient({
    * from the last-clicked tile. Every click recomputes the compact range string from the
    * resulting page set — the field never free-drifts out of sync with the tiles. */
   const handleTileClick = (page: number, event: MouseEvent<HTMLButtonElement>) => {
+    // Snapshot before scheduling the update — setSelectedPages's updater callback can run after
+    // this function has already returned, by which point the ref below would have been
+    // overwritten to `page` itself, collapsing every shift-click range to a single tile.
+    const previousTile = lastClickedTile.current;
     setSelectedPages((prev) => {
       const next = new Set(prev);
-      if (event.shiftKey && lastClickedTile.current !== null) {
-        const lo = Math.min(lastClickedTile.current, page);
-        const hi = Math.max(lastClickedTile.current, page);
+      if (event.shiftKey && previousTile !== null) {
+        const lo = Math.min(previousTile, page);
+        const hi = Math.max(previousTile, page);
         for (let p = lo; p <= hi; p++) next.add(p);
       } else if (next.has(page)) {
         next.delete(page);
