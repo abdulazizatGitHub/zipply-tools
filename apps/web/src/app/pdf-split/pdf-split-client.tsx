@@ -14,7 +14,6 @@ import {
   IconCheck,
   IconDownload,
   IconFilePdf,
-  IconScissors,
   IconX,
 } from '../../components/icons';
 
@@ -190,6 +189,7 @@ export function PdfSplitClient({
   const [ranges, setRanges] = useState('');
   const [split, setSplit] = useState<SplitState>({ status: 'idle' });
   const [viewStep, setViewStep] = useState<ViewStep>('upload');
+  const [showRangeError, setShowRangeError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const rangeRef = useRef<HTMLInputElement>(null);
   const lastClickedTile = useRef<number | null>(null);
@@ -250,6 +250,7 @@ export function PdfSplitClient({
     setSelectedPages(new Set());
     lastClickedTile.current = null;
     setMode('all');
+    setShowRangeError(false);
     setViewStep('split');
     beginUploadAndInspect(f);
   };
@@ -267,6 +268,7 @@ export function PdfSplitClient({
     // this function has already returned, by which point the ref below would have been
     // overwritten to `page` itself, collapsing every shift-click range to a single tile.
     const previousTile = lastClickedTile.current;
+    setShowRangeError(false);
     setSelectedPages((prev) => {
       const next = new Set(prev);
       if (event.shiftKey && previousTile !== null) {
@@ -289,6 +291,7 @@ export function PdfSplitClient({
    * were rather than flashing them empty — the field itself always shows exactly what was typed. */
   const handleRangesInput = (value: string) => {
     setRanges(value);
+    setShowRangeError(false);
     if (value.trim() === '') {
       setSelectedPages(new Set());
       return;
@@ -298,8 +301,14 @@ export function PdfSplitClient({
     if (parsed.size > 0) setSelectedPages(parsed);
   };
 
+  const selectAllMode = () => {
+    setMode('all');
+    setShowRangeError(false);
+  };
+
   const selectCustomMode = () => {
     setMode('custom');
+    setShowRangeError(false);
     setTimeout(() => {
       rangeRef.current?.focus();
     }, 60);
@@ -307,6 +316,11 @@ export function PdfSplitClient({
 
   const handleSplit = async () => {
     if (!file) return;
+    if (mode === 'custom' && ranges.trim().length === 0) {
+      setShowRangeError(true);
+      return;
+    }
+    setShowRangeError(false);
     setSplit({ status: 'splitting' });
     try {
       const id = fileId ?? (await upload(file));
@@ -356,6 +370,7 @@ export function PdfSplitClient({
     setRanges('');
     setSelectedPages(new Set());
     lastClickedTile.current = null;
+    setShowRangeError(false);
     setSplit({ status: 'idle' });
     setViewStep('upload');
   };
@@ -374,11 +389,8 @@ export function PdfSplitClient({
   const resolvedUrl = (part: SplitPart) =>
     part.downloadUrl.startsWith('http') ? part.downloadUrl : `${pdfServiceBase}${part.downloadUrl}`;
 
-  const canSplit = !!file && (mode === 'all' || ranges.trim().length > 0);
-  const showTwoPanel = viewStep === 'split' && split.status !== 'splitting';
-
   return (
-    <div className={`mx-auto ${showTwoPanel ? 'max-w-4xl' : 'max-w-2xl'}`}>
+    <div className="mx-auto max-w-2xl">
       <div className="flex items-center gap-4">
         {viewStep !== 'upload' && split.status !== 'splitting' && (
           <button
@@ -409,8 +421,8 @@ export function PdfSplitClient({
           <ProcessingPanel label="Splitting your PDF…" />
         ) : viewStep === 'done' && split.status === 'done' ? (
           <ResultPanel
-            heading={`${String(split.parts.length)} part${split.parts.length !== 1 ? 's' : ''} ready`}
-            subtext={`Source: ${String(split.sourcePageCount)} page${split.sourcePageCount !== 1 ? 's' : ''}`}
+            heading="Split complete!"
+            subtext={`Your PDF has been split into ${String(split.parts.length)} part${split.parts.length !== 1 ? 's' : ''}.`}
           >
             <ul className="space-y-2 text-left">
               {split.parts.map((part, idx) => (
@@ -418,20 +430,16 @@ export function PdfSplitClient({
                   key={part.fileId}
                   className="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-0 px-4 py-3"
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-neutral-900">
-                      Part {idx + 1} · {part.label}
-                    </p>
-                    <p className="text-xs text-neutral-400">
-                      {part.pageCount} page{part.pageCount !== 1 ? 's' : ''}
-                    </p>
-                  </div>
+                  <p className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-900">
+                    Part {idx + 1} · {part.label} · {part.pageCount} page
+                    {part.pageCount !== 1 ? 's' : ''}
+                  </p>
                   <a
                     href={resolvedUrl(part)}
                     download={`split-${part.label.toLowerCase().replace(/\s+/g, '-')}.pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-xs font-semibold text-neutral-0 transition-opacity hover:opacity-90"
+                    className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-0 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:border-brand/40 hover:bg-brand/5 hover:text-brand"
                   >
                     <IconDownload className="h-3.5 w-3.5" />
                     Download
@@ -481,212 +489,192 @@ export function PdfSplitClient({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-            {/* ── Left panel — file info + page-tile selector ── */}
-            <div className="space-y-3 sm:w-64 sm:flex-shrink-0">
-              {file && (
-                <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-0 px-3 py-2.5 shadow-sm">
-                  <IconFilePdf className="h-4 w-4 flex-shrink-0 text-brand" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-neutral-900">{file.name}</p>
-                    <p className="text-[11px] text-neutral-400">
-                      {fmt(file.size)}
-                      {uploadState === 'done' && (
-                        <span className="ml-1.5 inline-flex items-center gap-0.5 font-medium text-brand">
-                          <IconCheck className="h-2.5 w-2.5" />
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={reset}
-                    aria-label="Remove file"
-                    className="rounded-lg p-1 text-neutral-300 transition-colors hover:bg-danger-50 hover:text-danger-500"
-                  >
-                    <IconX className="h-3.5 w-3.5" />
-                  </button>
+          <div className="space-y-5">
+            {/* ── File info ── */}
+            {file && (
+              <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-0 px-3 py-2.5 shadow-sm">
+                <IconFilePdf className="h-4 w-4 flex-shrink-0 text-brand" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-semibold text-neutral-900">{file.name}</p>
+                  <p className="text-[11px] text-neutral-400">
+                    {fmt(file.size)}
+                    {uploadState === 'done' && (
+                      <span className="ml-1.5 inline-flex items-center gap-0.5 font-medium text-brand">
+                        <IconCheck className="h-2.5 w-2.5" />
+                      </span>
+                    )}
+                  </p>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={reset}
+                  aria-label="Remove file"
+                  className="rounded-lg p-1 text-neutral-300 transition-colors hover:bg-danger-50 hover:text-danger-500"
+                >
+                  <IconX className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
 
-              <div className="max-h-[420px] overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-0 p-3 shadow-sm">
-                {uploadState === 'error' ? (
-                  <div className="p-2 text-xs text-danger-600">
-                    Upload failed.{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (file) beginUploadAndInspect(file);
-                      }}
-                      className="font-semibold underline"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                ) : inspectState === 'error' ? (
-                  <p className="p-2 text-xs text-danger-600">Couldn&apos;t read page count.</p>
-                ) : inspectState !== 'done' || pageCount === null ? (
-                  <div className="flex items-center justify-center gap-2 py-8 text-xs text-neutral-400">
+            {/* ── Mode toggle — small pill, not large cards ── */}
+            <div className="inline-flex items-center gap-1 rounded-full bg-neutral-100 p-1">
+              <button
+                type="button"
+                aria-pressed={mode === 'all'}
+                onClick={selectAllMode}
+                className={[
+                  'rounded-full px-4 py-1.5 text-sm font-semibold transition-colors',
+                  mode === 'all'
+                    ? 'bg-brand text-neutral-0'
+                    : 'text-neutral-600 hover:bg-neutral-200',
+                ].join(' ')}
+              >
+                All pages
+              </button>
+              <button
+                type="button"
+                aria-pressed={mode === 'custom'}
+                onClick={selectCustomMode}
+                className={[
+                  'rounded-full px-4 py-1.5 text-sm font-semibold transition-colors',
+                  mode === 'custom'
+                    ? 'bg-brand text-neutral-0'
+                    : 'text-neutral-600 hover:bg-neutral-200',
+                ].join(' ')}
+              >
+                Custom ranges
+              </button>
+            </div>
+
+            {/* ── Mode content ── */}
+            {mode === 'all' ? (
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-0 p-6 text-center shadow-sm">
+                {pageCount === null ? (
+                  <div className="flex items-center justify-center gap-2 text-sm text-neutral-400">
                     <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />
-                    Reading pages…
+                    Reading page count…
                   </div>
                 ) : (
-                  <div className="grid grid-cols-4 gap-2">
-                    {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => {
-                      const selected = mode === 'all' || selectedPages.has(page);
-                      return (
-                        <button
-                          key={page}
-                          type="button"
-                          disabled={mode !== 'custom'}
-                          aria-pressed={selected}
-                          aria-label={`Page ${String(page)}${selected ? ', selected' : ''}`}
-                          onClick={(e) => {
-                            handleTileClick(page, e);
-                          }}
-                          className={[
-                            'flex aspect-[3/4] items-center justify-center rounded-md border text-[11px] font-semibold transition-colors',
-                            selected
-                              ? 'border-brand bg-brand/10 text-brand'
-                              : 'border-neutral-200 bg-neutral-50 text-neutral-400',
-                            mode === 'custom' ? 'hover:border-brand/50' : 'cursor-not-allowed',
-                          ].join(' ')}
-                        >
-                          {page}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ── Right panel — mode, ranges, action ── */}
-            <div className="flex-1 space-y-4">
-              <div className="rounded-2xl border border-neutral-200 bg-neutral-0 p-5 shadow-sm">
-                <p className="mb-4 text-xs font-bold uppercase tracking-widest text-neutral-400">
-                  How do you want to split?
-                </p>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    aria-pressed={mode === 'all'}
-                    onClick={() => {
-                      setMode('all');
-                    }}
-                    className={[
-                      'flex flex-col items-start gap-2.5 rounded-xl border-2 p-4 text-left transition-colors',
-                      mode === 'all'
-                        ? 'border-brand bg-brand/10'
-                        : 'border-neutral-200 bg-neutral-0 hover:border-brand/30',
-                    ].join(' ')}
-                  >
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl ${mode === 'all' ? 'bg-brand text-neutral-0' : 'bg-neutral-100 text-neutral-500'}`}
-                    >
-                      <IconFilePdf className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p
-                        className={`text-sm font-bold ${mode === 'all' ? 'text-brand' : 'text-neutral-800'}`}
-                      >
-                        All pages
-                      </p>
-                      <p className="text-xs text-neutral-400">One file per page</p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    aria-pressed={mode === 'custom'}
-                    onClick={selectCustomMode}
-                    className={[
-                      'flex flex-col items-start gap-2.5 rounded-xl border-2 p-4 text-left transition-colors',
-                      mode === 'custom'
-                        ? 'border-brand bg-brand/10'
-                        : 'border-neutral-200 bg-neutral-0 hover:border-brand/30',
-                    ].join(' ')}
-                  >
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl ${mode === 'custom' ? 'bg-brand text-neutral-0' : 'bg-neutral-100 text-neutral-500'}`}
-                    >
-                      <IconScissors className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p
-                        className={`text-sm font-bold ${mode === 'custom' ? 'text-brand' : 'text-neutral-800'}`}
-                      >
-                        Custom ranges
-                      </p>
-                      <p className="text-xs text-neutral-400">You define the parts</p>
-                    </div>
-                  </button>
-                </div>
-
-                {mode === 'custom' && (
-                  <div className="mt-4 space-y-2">
-                    <label
-                      htmlFor="range-input"
-                      className="block text-xs font-semibold uppercase tracking-widest text-neutral-500"
-                    >
-                      Page ranges
-                    </label>
-                    <input
-                      id="range-input"
-                      ref={rangeRef}
-                      type="text"
-                      value={ranges}
-                      onChange={(e) => {
-                        handleRangesInput(e.target.value);
-                      }}
-                      placeholder="e.g. 1-3, 5, 7-9"
-                      className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-sm text-neutral-900 placeholder-neutral-400 transition-all focus:border-brand focus:bg-neutral-0 focus:outline-none focus:ring-2 focus:ring-brand/20"
-                    />
-                    <p className="text-xs text-neutral-400">
-                      e.g.{' '}
-                      <code className="rounded bg-neutral-100 px-1 font-mono text-[11px] text-neutral-600">
-                        1-3, 5, 7-9
-                      </code>
+                  <>
+                    <p className="text-sm font-semibold text-neutral-800">
+                      All {pageCount} pages will become separate files.
                     </p>
-                  </div>
+                    <p className="mt-1 text-xs text-neutral-400">One PDF per page.</p>
+                  </>
                 )}
               </div>
-
-              {split.status === 'error' && (
-                <div className="flex items-start gap-3 rounded-xl border border-danger-200 bg-danger-50 p-4">
-                  <IconAlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-danger-500" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-danger-800">Split failed</p>
-                    <p className="mt-0.5 text-sm text-danger-600">{split.message}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSplit({ status: 'idle' });
-                    }}
-                    className="text-danger-500 hover:text-danger-700"
-                  >
-                    <IconX />
-                  </button>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm">
+                  {uploadState === 'error' ? (
+                    <div className="p-2 text-xs text-danger-600">
+                      Upload failed.{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (file) beginUploadAndInspect(file);
+                        }}
+                        className="font-semibold underline"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  ) : inspectState === 'error' ? (
+                    <p className="p-2 text-xs text-danger-600">Couldn&apos;t read page count.</p>
+                  ) : inspectState !== 'done' || pageCount === null ? (
+                    <div className="flex items-center justify-center gap-2 py-8 text-xs text-neutral-400">
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />
+                      Reading pages…
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => {
+                        const selected = selectedPages.has(page);
+                        return (
+                          <button
+                            key={page}
+                            type="button"
+                            aria-pressed={selected}
+                            aria-label={`Page ${String(page)}${selected ? ', selected' : ''}`}
+                            onClick={(e) => {
+                              handleTileClick(page, e);
+                            }}
+                            className={[
+                              'flex h-14 w-12 flex-shrink-0 items-center justify-center rounded-md border text-sm transition-colors',
+                              selected
+                                ? 'border-brand bg-brand/15 font-semibold text-brand'
+                                : 'border-neutral-200 bg-neutral-100 text-neutral-500 hover:bg-neutral-200',
+                            ].join(' ')}
+                          >
+                            {page}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
 
-              <Button
-                type="button"
-                variant="primary"
-                size="lg"
-                className="w-full"
-                disabled={!canSplit}
-                onClick={() => {
-                  void handleSplit();
-                }}
-              >
-                <span className="flex items-center justify-center gap-2">
-                  Split PDF
-                  <IconArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Button>
-            </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="range-input"
+                    className="block text-xs font-semibold uppercase tracking-widest text-neutral-500"
+                  >
+                    Page ranges
+                  </label>
+                  <input
+                    id="range-input"
+                    ref={rangeRef}
+                    type="text"
+                    value={ranges}
+                    onChange={(e) => {
+                      handleRangesInput(e.target.value);
+                    }}
+                    placeholder="1-3, 5"
+                    className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-sm text-neutral-900 placeholder-neutral-400 transition-all focus:border-brand focus:bg-neutral-0 focus:outline-none focus:ring-2 focus:ring-brand/20"
+                  />
+                  <p className="text-xs text-neutral-400">e.g. 1-3, 5, 7-9</p>
+                </div>
+              </div>
+            )}
+
+            {split.status === 'error' && (
+              <div className="flex items-start gap-3 rounded-xl border border-danger-200 bg-danger-50 p-4">
+                <IconAlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-danger-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-danger-800">Split failed</p>
+                  <p className="mt-0.5 text-sm text-danger-600">{split.message}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSplit({ status: 'idle' });
+                  }}
+                  className="text-danger-500 hover:text-danger-700"
+                >
+                  <IconX />
+                </button>
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant="primary"
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                void handleSplit();
+              }}
+            >
+              <span className="flex items-center justify-center gap-2">
+                Split PDF
+                <IconArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </Button>
+
+            {showRangeError && (
+              <p className="text-center text-xs font-medium text-danger-600">
+                Please select at least one page range.
+              </p>
+            )}
           </div>
         )}
       </div>
