@@ -109,7 +109,7 @@ export default defineTool({
         const label =
           indices.length === 1
             ? `Page ${String((first ?? 0) + 1)}`
-            : `Pages ${String((first ?? 0) + 1)}–${String((last ?? 0) + 1)}`;
+            : `Pages ${String((first ?? 0) + 1)}-${String((last ?? 0) + 1)}`;
         parsed.push({ indices, label });
       }
       groups = parsed;
